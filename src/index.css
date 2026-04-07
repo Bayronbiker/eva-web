@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Se elimina @import "tailwindcss" si ya usas las directivas de arriba para evitar duplicidad */
+
+/* ========== CONFIGURACIÓN DE VARIABLES (ESTILO MEDILINE) ========== */
+:root,
+[data-theme="light"] {
+  /* Colores Principales */
+  --eva-primary: #2E7D32;         /* Verde Nativo EVA */
+  --eva-primary-hover: #1B5E20;
+  --eva-primary-light: #E8F5E9;
+  
+  /* Sidebar (Barra Lateral) */
+  --eva-sidebar: #2E7D32;
+  --eva-sidebar-text: #FFFFFF;
+  --eva-sidebar-text-muted: rgba(255, 255, 255, 0.7);
+  --eva-sidebar-active: #FFFFFF;  /* Fondo del item activo */
+  --eva-sidebar-active-text: #2E7D32; /* Texto del item activo */
+
+  /* Colores de Estado */
+  --eva-success: #10B981;
+  --eva-danger: #EF4444;
+  --eva-danger-light: #FEF2F2;
+  --eva-warning: #F59E0B;
+  --eva-warning-light: #FFFBEB;
+
+  /* Fondos y Superficies */
+  --eva-bg: #F8FAFB;              /* Gris muy claro Mediline */
+  --eva-bg-card: #FFFFFF;
+  --eva-border: #F1F5F9;
+  
+  /* Texto */
+  --eva-text: #1A1C1E;
+  --eva-text-muted: #94A3B8;
+
+  /* Sombras y Bordes */
+  --eva-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  --eva-radius-xl: 2.5rem;        /* 40px - Estilo Mediline */
+  --eva-radius-lg: 1.5rem;        /* 24px */
+  --eva-radius-md: 1rem;          /* 16px */
+}
+
+/* ========== MODO OSCURO (Opcional) ========== */
+[data-theme="dark"] {
+  --eva-bg: #0F172A;
+  --eva-bg-card: #1E293B;
+  --eva-border: #334155;
+  --eva-text: #F8FAFC;
+  --eva-text-muted: #94A3B8;
+  --eva-sidebar: #064E3B;
+  --eva-sidebar-active: rgba(255, 255, 255, 0.1);
+  --eva-sidebar-active-text: #FFFFFF;
+}
+
+/* ========== ESTILOS BASE ========== */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--eva-bg);
+  font-family: 'Plus Jakarta Sans', 'Poppins', system-ui, sans-serif;
+  color: var(--eva-text);
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+/* ========== COMPONENTES PERSONALIZADOS ========== */
+
+/* Tarjetas Estilo Mediline */
+.eva-card {
+  background: var(--eva-bg-card);
+  border-radius: var(--eva-radius-lg);
+  box-shadow: var(--eva-shadow);
+  border: 1px solid var(--eva-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.eva-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones Principales */
+.eva-btn-primary {
+  background: var(--eva-primary);
+  color: white;
+  font-weight: 700;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--eva-radius-md);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.eva-btn-primary:hover {
+  background: var(--eva-primary-hover);
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(46, 125, 50, 0.2);
+}
+
+.eva-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Inputs Modernos */
+.eva-input {
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid var(--eva-border);
+  border-radius: var(--eva-radius-md);
+  background: white;
+  color: var(--eva-text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.eva-input:focus {
+  border-color: var(--eva-primary);
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+}
+
+/* Barra de desplazamiento personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--eva-primary);
+}
+
+/* Animaciones suaves para cambios de sección */
+.section-fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.section-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
