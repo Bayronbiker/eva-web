@@ -1,7 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  ArrowLeft, Save, Percent, ChevronDown, Trash2
-} from 'lucide-react';
+import { ArrowLeft, Save, Trash2, User, FileText, Tag, Hash, CreditCard } from 'lucide-react';
+
+const primaryGreen = '#2E7D32';
+const darkGreen = '#1B5E20';
+const lightGreen = '#E8F5E9';
+const midGreen = '#4CAF50';
 
 const CrearFactura = ({ facturaAEditar, onBack, onSave, onDelete, listaDeClientes = [], onNuevoCliente }) => {
   const isEditMode = !!facturaAEditar;
@@ -17,14 +20,9 @@ const CrearFactura = ({ facturaAEditar, onBack, onSave, onDelete, listaDeCliente
 
   useEffect(() => {
     if (!facturaAEditar) {
-      setCliente('');
-      setVendedor('');
-      setFormaDePago('Contado');
-      setDescripcion('');
-      setCantidad('1');
-      setCostoPorUnidad('');
-      setDescuentoPorcentual('');
-      setIvaPorcentual('19');
+      setCliente(''); setVendedor(''); setFormaDePago('Contado');
+      setDescripcion(''); setCantidad('1'); setCostoPorUnidad('');
+      setDescuentoPorcentual(''); setIvaPorcentual('19');
       return;
     }
     const item = facturaAEditar.items?.[0] || {};
@@ -32,8 +30,7 @@ const CrearFactura = ({ facturaAEditar, onBack, onSave, onDelete, listaDeCliente
     const ivaAmt = facturaAEditar.iva || 0;
     const ivaPct = sub > 0 ? Math.round((ivaAmt / sub) * 1000) / 10 : 19;
     setCliente(facturaAEditar.clienteNombre || '');
-    setVendedor('');
-    setFormaDePago('Contado');
+    setVendedor(''); setFormaDePago('Contado');
     setDescripcion(item.descripcion || '');
     setCantidad(String(item.cantidad ?? 1));
     setCostoPorUnidad(item.precioUnitario != null ? String(item.precioUnitario) : '');
@@ -46,224 +43,213 @@ const CrearFactura = ({ facturaAEditar, onBack, onSave, onDelete, listaDeCliente
     const cant = parseFloat(cantidad) || 0;
     const descPorc = parseFloat(descuentoPorcentual) || 0;
     const ivaPorc = parseFloat(ivaPorcentual) || 0;
-
     const totalBruto = costo * cant;
     const valorDescuento = totalBruto * (descPorc / 100);
     const subtotal = totalBruto - valorDescuento;
     const valorIva = subtotal * (ivaPorc / 100);
     const valorNeto = subtotal + valorIva;
-
     return { totalBruto, valorDescuento, subtotal, valorIva, valorNeto, descPorc, ivaPorc };
   }, [costoPorUnidad, cantidad, descuentoPorcentual, ivaPorcentual]);
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
+  const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
 
   const buildPayload = () => ({
-    ...calculos,
-    cliente,
-    vendedor,
-    formaDePago,
-    descripcion,
-    _id: facturaAEditar?._id,
-    numero: facturaAEditar?.numero,
+    ...calculos, cliente, vendedor, formaDePago, descripcion,
+    _id: facturaAEditar?._id, numero: facturaAEditar?.numero,
   });
 
-  const handlePrimaryAction = () => {
-    const data = buildPayload();
-    if (onSave) onSave(data);
+  const inputStyle = {
+    width: '100%', padding: '12px 16px', borderRadius: '12px',
+    border: '1.5px solid #e0e0e0', fontSize: '15px', fontFamily: 'inherit',
+    background: '#fff', outline: 'none', boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
   };
 
+  const labelStyle = {
+    fontSize: '11px', fontWeight: '700', letterSpacing: '0.8px',
+    textTransform: 'uppercase', color: '#757575', marginBottom: '6px', display: 'block',
+  };
+
+  const sectionStyle = {
+    background: '#fff', borderRadius: '16px', padding: '24px',
+    border: '1.5px solid #f0f0f0', marginBottom: '16px',
+  };
+
+  const iconLabel = (Icon, text) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+      <Icon size={13} color={primaryGreen} />
+      <span style={labelStyle}>{text}</span>
+    </div>
+  );
+
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white min-h-screen font-sans border-[6px] border-[#2E7D32] rounded-3xl my-4 shadow-2xl">
+    <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-      <div className="flex items-center gap-4 mb-8 border-b-2 border-gray-100 pb-4">
-        <button type="button" onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-          <ArrowLeft size={32} className="text-gray-600" />
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+        <button type="button" onClick={onBack}
+          style={{ width: '44px', height: '44px', borderRadius: '12px', border: '1.5px solid #e0e0e0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <ArrowLeft size={20} color="#424242" />
         </button>
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 uppercase tracking-tight">
-            {isEditMode ? 'Editar factura' : 'Nueva factura'}
-          </h1>
-          <p className="text-sm text-gray-500 font-medium">Gestión de documentos tributarios</p>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isEditMode ? '#FF9800' : primaryGreen }} />
+            <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: '#1a1a1a' }}>
+              {isEditMode ? 'Editar factura' : 'Nueva factura'}
+            </h1>
+          </div>
+          <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#9e9e9e' }}>Gestión de documentos tributarios</p>
+        </div>
+        {isEditMode && facturaAEditar?.numero && (
+          <div style={{ background: lightGreen, color: darkGreen, padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>
+            {facturaAEditar.numero}
+          </div>
+        )}
+      </div>
+
+      {/* Vendedor + Cliente */}
+      <div style={{ ...sectionStyle, padding: '0', overflow: 'hidden' }}>
+        <div style={{ background: primaryGreen, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <User size={16} color="rgba(255,255,255,0.8)" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Partes del documento</span>
+        </div>
+        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label style={labelStyle}>Vendedor</label>
+            <input type="text" placeholder="Nombre del responsable" value={vendedor}
+              onChange={(e) => setVendedor(e.target.value)} style={inputStyle} />
+          </div>
+          <div>
+            <label style={labelStyle}>Cliente</label>
+            <select value={cliente}
+              onChange={(e) => e.target.value === 'nuevo' ? onNuevoCliente?.() : setCliente(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
+              <option value="">Seleccionar cliente...</option>
+              <option value="nuevo" style={{ color: primaryGreen, fontWeight: '700' }}>+ Crear nuevo cliente</option>
+              {listaDeClientes.map((c, i) => <option key={i} value={c.nombre}>{c.nombre}</option>)}
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="border-2 border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-
-        <div className="flex w-full bg-[#C8E6C9] border-b border-gray-300">
-          <div className="w-1/2 p-6 border-r-2 border-[#2E7D32]/30 px-[15px]">
-            <label className="block text-base font-black text-[#1B5E20] uppercase mb-2">Vendedor</label>
-            <input
-              type="text"
-              placeholder="Nombre del responsable"
-              value={vendedor}
-              onChange={(e) => setVendedor(e.target.value)}
-              className="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 font-medium shadow-sm"
-            />
-          </div>
-          <div className="w-1/2 p-6 px-[15px]">
-            <label className="block text-base font-black text-[#1B5E20] uppercase mb-2">Cliente</label>
-            <div className="relative">
-              <select
-                value={cliente}
-                onChange={(e) => {
-                  if (e.target.value === 'nuevo') {
-                    onNuevoCliente?.();
-                  } else {
-                    setCliente(e.target.value);
-                  }
-                }}
-                className="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-xl appearance-none focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 font-medium shadow-sm"
-              >
-                <option value="">Seleccionar cliente...</option>
-                <option value="nuevo" className="font-bold text-[#2E7D32] tracking-wide">+ CREAR NUEVO CLIENTE</option>
-                {listaDeClientes.map((c, i) => (
-                  <option key={i} value={c.nombre}>{c.nombre}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-5 top-5 text-gray-400 pointer-events-none" size={24} />
-            </div>
-          </div>
+      {/* Forma de pago */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Forma de pago</label>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          {['Contado', 'Crédito'].map((op) => (
+            <button key={op} type="button" onClick={() => setFormaDePago(op)}
+              style={{
+                padding: '10px 24px', borderRadius: '10px', border: '1.5px solid',
+                borderColor: formaDePago === op ? primaryGreen : '#e0e0e0',
+                background: formaDePago === op ? lightGreen : '#fff',
+                color: formaDePago === op ? darkGreen : '#757575',
+                fontWeight: '700', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit',
+                transition: 'all 0.15s',
+              }}>
+              {op}
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className="w-full p-8 bg-white border-b border-gray-300 px-[15px]">
-          <label className="block text-base font-black text-gray-700 uppercase mb-4">Forma de pago</label>
-          <div className="flex gap-10">
-            {['Contado', 'Crédito'].map((opcion) => (
-              <label key={opcion} className="flex items-center gap-4 cursor-pointer text-xl font-bold">
-                <input
-                  type="radio"
-                  name="pago"
-                  checked={formaDePago === opcion}
-                  onChange={() => setFormaDePago(opcion)}
-                  className="w-6 h-6 accent-[#2E7D32]"
-                />
-                {opcion}
-              </label>
-            ))}
-          </div>
+      {/* Descripción */}
+      <div style={{ ...sectionStyle, padding: '0', overflow: 'hidden' }}>
+        <div style={{ background: '#F5F5F5', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FileText size={16} color="#757575" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: '#757575', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Detalle del servicio / producto</span>
         </div>
-
-        <div className="w-full p-6 bg-[#C8E6C9] border-b border-gray-300 px-[15px]">
-          <label className="block text-base font-black text-[#1B5E20] uppercase mb-2">Descripción del servicio / Producto</label>
-          <textarea
-            rows="3"
-            placeholder="Escribe aquí los detalles..."
-            value={descripcion}
+        <div style={{ padding: '24px' }}>
+          <textarea rows="3" placeholder="Describe el producto o servicio..." value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
-            className="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-xl resize-none focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 font-medium shadow-sm"
-          />
+            style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }} />
         </div>
+      </div>
 
-        <div className="flex w-full bg-white border-b border-gray-300">
-          <div className="w-1/2 p-6 border-r border-gray-200 px-[15px]">
-            <label className="block text-base font-black text-gray-700 uppercase mb-2">Cantidad</label>
-            <input
-              type="number"
-              value={cantidad}
-              onChange={(e) => setCantidad(e.target.value)}
-              className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-2xl font-bold focus:outline-none shadow-inner"
-            />
-          </div>
-          <div className="w-1/2 p-6 px-[15px]">
-            <label className="block text-base font-black text-gray-700 uppercase mb-2">Costo Unitario</label>
-            <div className="relative">
-              <span className="absolute left-5 top-4 text-gray-500 text-2xl font-bold">$</span>
-              <input
-                type="number"
-                value={costoPorUnidad}
-                onChange={(e) => setCostoPorUnidad(e.target.value)}
-                className="w-full pl-12 pr-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-2xl font-bold focus:outline-none shadow-inner"
-              />
-            </div>
+      {/* Cantidad + Costo */}
+      <div style={{ ...sectionStyle, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div>
+          <label style={labelStyle}>Cantidad</label>
+          <input type="number" value={cantidad} onChange={(e) => setCantidad(e.target.value)}
+            style={{ ...inputStyle, fontSize: '18px', fontWeight: '700' }} />
+        </div>
+        <div>
+          <label style={labelStyle}>Costo unitario</label>
+          <div style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9e9e9e', fontSize: '15px', fontWeight: '700' }}>$</span>
+            <input type="number" value={costoPorUnidad} onChange={(e) => setCostoPorUnidad(e.target.value)}
+              style={{ ...inputStyle, paddingLeft: '32px', fontSize: '18px', fontWeight: '700' }} />
           </div>
         </div>
+      </div>
 
-        <div className="flex w-full bg-[#C8E6C9]">
-          <div className="w-1/2 p-6 border-r-2 border-[#2E7D32]/30 px-[15px]">
-            <label className="block text-base font-black text-[#1B5E20] uppercase mb-2">Descuento (%)</label>
-            <div className="relative">
-              <Percent className="absolute left-5 top-5 text-[#2E7D32]" size={24} />
-              <input
-                type="number"
-                placeholder="0"
-                value={descuentoPorcentual}
+      {/* Descuento + IVA */}
+      <div style={{ ...sectionStyle, padding: '0', overflow: 'hidden' }}>
+        <div style={{ background: primaryGreen, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Tag size={16} color="rgba(255,255,255,0.8)" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Ajustes fiscales</span>
+        </div>
+        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label style={labelStyle}>Descuento (%)</label>
+            <div style={{ position: 'relative' }}>
+              <input type="number" placeholder="0" value={descuentoPorcentual}
                 onChange={(e) => setDescuentoPorcentual(e.target.value)}
-                className="w-full pl-14 pr-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-2xl font-bold focus:outline-none shadow-sm"
-              />
+                style={{ ...inputStyle, paddingRight: '44px' }} />
+              <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9e9e9e', fontWeight: '700' }}>%</span>
             </div>
           </div>
-          <div className="w-1/2 p-6 px-[15px]">
-            <label className="block text-base font-black text-[#1B5E20] uppercase mb-2">IVA (%)</label>
-            <input
-              type="number"
-              value={ivaPorcentual}
-              onChange={(e) => setIvaPorcentual(e.target.value)}
-              className="w-full px-5 py-4 bg-white border-2 border-gray-300 rounded-xl text-2xl font-bold focus:outline-none shadow-sm"
-            />
+          <div>
+            <label style={labelStyle}>IVA (%)</label>
+            <div style={{ position: 'relative' }}>
+              <input type="number" value={ivaPorcentual} onChange={(e) => setIvaPorcentual(e.target.value)}
+                style={{ ...inputStyle, paddingRight: '44px' }} />
+              <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9e9e9e', fontWeight: '700' }}>%</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-10 border-2 border-gray-300 rounded-2xl overflow-hidden shadow-lg">
-        <div className="flex justify-between p-5 text-lg border-b-2 bg-white">
-          <span className="font-bold text-gray-600 uppercase">TOTAL BRUTO</span>
-          <span className="font-bold text-gray-900">{formatCurrency(calculos.totalBruto)}</span>
+      {/* Resumen de totales */}
+      <div style={{ background: '#1a1a1a', borderRadius: '20px', overflow: 'hidden', marginBottom: '24px' }}>
+        <div style={{ padding: '18px 24px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <Hash size={16} color="rgba(255,255,255,0.5)" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Resumen</span>
         </div>
-        <div className="flex justify-between p-5 text-lg border-b-2 bg-white">
-          <span className="font-bold text-gray-600 uppercase">DESCUENTO ({calculos.descPorc}%)</span>
-          <span className="text-red-600 font-bold">-{formatCurrency(calculos.valorDescuento)}</span>
-        </div>
-        <div className="flex justify-between p-5 text-lg border-b-2 bg-white">
-          <span className="font-bold text-gray-600 uppercase">SUBTOTAL</span>
-          <span className="font-bold text-gray-900">{formatCurrency(calculos.subtotal)}</span>
-        </div>
-        <div className="flex justify-between p-5 text-lg border-b-2 bg-white">
-          <span className="font-bold text-gray-600 uppercase">I.V.A. ({calculos.ivaPorc}%)</span>
-          <span className="font-bold text-gray-900">{formatCurrency(calculos.valorIva)}</span>
-        </div>
-        <div className="flex justify-between p-6 text-2xl font-black bg-gray-50">
-          <span className="uppercase tracking-wider text-gray-800">VALOR NETO</span>
-          <span className="text-[#2E7D32] text-3xl">{formatCurrency(calculos.valorNeto)}</span>
+        {[
+          { label: 'Total bruto', value: fmt(calculos.totalBruto), color: 'rgba(255,255,255,0.7)' },
+          { label: `Descuento (${calculos.descPorc}%)`, value: `-${fmt(calculos.valorDescuento)}`, color: '#ef9a9a' },
+          { label: 'Subtotal', value: fmt(calculos.subtotal), color: 'rgba(255,255,255,0.7)' },
+          { label: `IVA (${calculos.ivaPorc}%)`, value: fmt(calculos.valorIva), color: 'rgba(255,255,255,0.7)' },
+        ].map((row, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)' }}>{row.label}</span>
+            <span style={{ fontSize: '15px', fontWeight: '600', color: row.color }}>{row.value}</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px' }}>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Valor neto</span>
+          <span style={{ fontSize: '28px', fontWeight: '900', color: midGreen }}>{fmt(calculos.valorNeto)}</span>
         </div>
       </div>
 
+      {/* Botones */}
       {isEditMode ? (
-        <div className="flex gap-4 mt-10">
-          <button
-            type="button"
-            onClick={handlePrimaryAction}
-            className="flex-1 py-6 bg-[#22C55E] text-white font-black rounded-2xl text-xl uppercase flex items-center justify-center gap-3 hover:bg-[#16A34A] shadow-xl transition-all active:scale-95"
-          >
-            <Save size={28} />
-            Guardar
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <button type="button" onClick={() => onSave?.(buildPayload())}
+            style={{ padding: '16px', borderRadius: '14px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Save size={20} /> Guardar cambios
           </button>
-          <button
-            type="button"
-            onClick={() => facturaAEditar?._id && onDelete?.(facturaAEditar._id)}
-            className="flex-1 py-6 bg-[#DC2626] text-white font-black rounded-2xl text-xl uppercase flex items-center justify-center gap-3 hover:bg-[#B91C1C] shadow-xl transition-all active:scale-95"
-          >
-            <Trash2 size={28} />
-            Eliminar
+          <button type="button" onClick={() => facturaAEditar?._id && onDelete?.(facturaAEditar._id)}
+            style={{ padding: '16px', borderRadius: '14px', border: '1.5px solid #ef5350', background: '#fff', color: '#ef5350', fontWeight: '800', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Trash2 size={20} /> Eliminar
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={handlePrimaryAction}
-          className="w-full mt-10 py-6 bg-[#2E7D32] text-white font-black rounded-2xl text-2xl uppercase flex items-center justify-center gap-4 hover:bg-[#1B5E20] shadow-xl transition-all transform active:scale-95"
-        >
-          <Save size={32} />
-          Crear factura
+        <button type="button" onClick={() => onSave?.(buildPayload())}
+          style={{ width: '100%', padding: '18px', borderRadius: '14px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontFamily: 'inherit' }}>
+          <Save size={22} /> Crear factura
         </button>
       )}
-
     </div>
   );
 };
