@@ -1,7 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  Save, DollarSign, Hash, ChevronDown, Share2, ArrowLeft, Trash2
-} from 'lucide-react';
+import { ArrowLeft, Save, Trash2, User, FileText, Hash, Tag } from 'lucide-react';
+
+const primaryGreen = '#2E7D32';
+const darkGreen = '#1B5E20';
+const lightGreen = '#E8F5E9';
+const midGreen = '#4CAF50';
 
 const CrearCotizacion = ({ cotizacionAEditar, onBack, onSave, onDelete, listaDeClientes = [], onNuevoCliente }) => {
   const isEditMode = !!cotizacionAEditar;
@@ -16,13 +19,8 @@ const CrearCotizacion = ({ cotizacionAEditar, onBack, onSave, onDelete, listaDeC
 
   useEffect(() => {
     if (!cotizacionAEditar) {
-      setCliente('');
-      setNumeroCotizacion('');
-      setCantidad('1');
-      setDescripcion('');
-      setValorUnitario('');
-      setNombreVendedor('');
-      setCedulaVendedor('');
+      setCliente(''); setNumeroCotizacion(''); setCantidad('1');
+      setDescripcion(''); setValorUnitario(''); setNombreVendedor(''); setCedulaVendedor('');
       return;
     }
     const item = cotizacionAEditar.items?.[0] || {};
@@ -31,222 +29,164 @@ const CrearCotizacion = ({ cotizacionAEditar, onBack, onSave, onDelete, listaDeC
     setCantidad(String(item.cantidad ?? 1));
     setDescripcion(item.descripcion || '');
     setValorUnitario(item.precioUnitario != null ? String(item.precioUnitario) : '');
-    setNombreVendedor('');
-    setCedulaVendedor('');
+    setNombreVendedor(''); setCedulaVendedor('');
   }, [cotizacionAEditar]);
 
-  const valorTotal = useMemo(() => {
-    const cant = parseFloat(cantidad) || 0;
-    const unitario = parseFloat(valorUnitario) || 0;
-    return cant * unitario;
-  }, [cantidad, valorUnitario]);
+  const valorTotal = useMemo(() => (parseFloat(cantidad) || 0) * (parseFloat(valorUnitario) || 0), [cantidad, valorUnitario]);
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(amount);
+  const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+
+  const buildPayload = () => ({ cliente, numeroCotizacion, cantidad, descripcion, valorUnitario, valorTotal, nombreVendedor, cedulaVendedor, _id: cotizacionAEditar?._id, numero: cotizacionAEditar?.numero });
+
+  const inputStyle = {
+    width: '100%', padding: '12px 16px', borderRadius: '12px',
+    border: '1.5px solid #e0e0e0', fontSize: '15px', fontFamily: 'inherit',
+    background: '#fff', outline: 'none', boxSizing: 'border-box',
   };
 
-  const buildPayload = () => ({
-    cliente,
-    numeroCotizacion,
-    cantidad,
-    descripcion,
-    valorUnitario,
-    valorTotal,
-    nombreVendedor,
-    cedulaVendedor,
-    _id: cotizacionAEditar?._id,
-    numero: cotizacionAEditar?.numero,
-  });
+  const labelStyle = {
+    fontSize: '11px', fontWeight: '700', letterSpacing: '0.8px',
+    textTransform: 'uppercase', color: '#757575', marginBottom: '6px', display: 'block',
+  };
 
-  const handleGuardar = () => {
-    if (onSave) onSave(buildPayload());
+  const sectionStyle = {
+    background: '#fff', borderRadius: '16px', border: '1.5px solid #f0f0f0', marginBottom: '16px', overflow: 'hidden',
   };
 
   return (
-    <div className="max-w-[1148px] mx-auto p-2 bg-white h-[92vh] font-sans border-[6px] border-[#2E7D32] rounded-3xl my-2 shadow-2xl flex flex-col overflow-hidden">
+    <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-      <div className="flex flex-col h-full p-4 justify-between">
-
-        <div className="mb-4 border-b-2 border-gray-100 pb-2 flex justify-between items-center gap-3">
-          <div className="flex items-start gap-3">
-            <button type="button" onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full shrink-0">
-              <ArrowLeft size={24} className="text-gray-600" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-black text-gray-800 uppercase tracking-tight">
-                {isEditMode ? 'Editar Cotización' : 'Nueva Cotización'}
-              </h1>
-              <p className="text-xs text-gray-500 font-medium">Gestión de propuesta comercial</p>
-            </div>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+        <button type="button" onClick={onBack}
+          style={{ width: '44px', height: '44px', borderRadius: '12px', border: '1.5px solid #e0e0e0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <ArrowLeft size={20} color="#424242" />
+        </button>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isEditMode ? '#FF9800' : primaryGreen }} />
+            <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '800', color: '#1a1a1a' }}>
+              {isEditMode ? 'Editar cotización' : 'Nueva cotización'}
+            </h1>
           </div>
-
-          {isEditMode && (
-            <button type="button" className="flex items-center gap-2 bg-[#455A64] text-white px-4 py-2 rounded-xl font-bold hover:bg-[#37474F] transition-all text-sm shrink-0">
-              <Share2 size={18} />
-              COMPARTIR PDF
-            </button>
-          )}
+          <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#9e9e9e' }}>Gestión de propuesta comercial</p>
         </div>
-
-        <div className="flex-grow flex flex-col border-2 border-gray-200 rounded-2xl overflow-hidden shadow-sm overflow-y-auto">
-
-          <div className="relative flex w-full bg-[#C8E6C9] border-b border-gray-300 p-4 gap-8">
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-[#1B5E20] uppercase">Cliente</label>
-              <div className="relative">
-                <select
-                  value={cliente}
-                  onChange={(e) => {
-                    if (e.target.value === 'nuevo') {
-                      onNuevoCliente?.();
-                    } else {
-                      setCliente(e.target.value);
-                    }
-                  }}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-lg appearance-none focus:outline-none"
-                >
-                  <option value="">Seleccionar cliente...</option>
-                  <option value="nuevo">+ Crear nuevo cliente</option>
-                  {listaDeClientes.map((c, i) => (
-                    <option key={i} value={c.nombre}>{c.nombre}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" size={20} />
-              </div>
-            </div>
-
-            <div className="w-[2px] self-stretch bg-[#2E7D32] opacity-20 my-1" />
-
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-[#1B5E20] uppercase">Número</label>
-              <div className="relative">
-                <Hash className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  value={numeroCotizacion}
-                  onChange={(e) => setNumeroCotizacion(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-lg font-bold focus:outline-none"
-                  placeholder="001"
-                />
-              </div>
-            </div>
+        {isEditMode && cotizacionAEditar?.numero && (
+          <div style={{ background: lightGreen, color: darkGreen, padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '700' }}>
+            {cotizacionAEditar.numero}
           </div>
+        )}
+      </div>
 
-          <div className="w-full p-4 bg-white border-b border-gray-300 flex flex-col gap-1 px-4">
-            <label className="text-sm font-black text-gray-700 uppercase">Descripción del Servicio / Producto</label>
-            <textarea
-              rows="2"
-              placeholder="Escribe aquí los detalles..."
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-lg resize-none focus:outline-none"
-            />
-          </div>
-
-          <div className="relative flex w-full bg-[#C8E6C9] border-b border-gray-300 p-4 gap-8">
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-[#1B5E20] uppercase">Cantidad</label>
-              <input
-                type="number"
-                value={cantidad}
-                onChange={(e) => setCantidad(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-lg font-bold focus:outline-none"
-              />
-            </div>
-
-            <div className="w-[2px] self-stretch bg-[#2E7D32] opacity-20 my-1" />
-
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-[#1B5E20] uppercase">Valor Unitario</label>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-[#2E7D32] text-lg font-bold">$</span>
-                <input
-                  type="number"
-                  value={valorUnitario}
-                  onChange={(e) => setValorUnitario(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-lg font-bold focus:outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="relative flex w-full bg-white p-4 gap-8">
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-gray-700 uppercase">Nombre del Vendedor</label>
-              <input
-                type="text"
-                value={nombreVendedor}
-                onChange={(e) => setNombreVendedor(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-lg font-medium focus:outline-none"
-              />
-            </div>
-
-            <div className="w-[2px] self-stretch bg-gray-300 opacity-50 my-1" />
-
-            <div className="flex-1 flex flex-col gap-1 px-2">
-              <label className="text-sm font-black text-gray-700 uppercase">Cédula Vendedor</label>
-              <input
-                type="text"
-                value={cedulaVendedor}
-                onChange={(e) => setCedulaVendedor(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-lg font-medium focus:outline-none"
-              />
-            </div>
-          </div>
+      {/* Cliente + Número */}
+      <div style={sectionStyle}>
+        <div style={{ background: primaryGreen, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <User size={16} color="rgba(255,255,255,0.8)" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Partes del documento</span>
         </div>
-
-        <div className="mt-4">
-          <div className="mb-2 border-[3px] border-[#2E7D32] rounded-2xl overflow-hidden shadow-md">
-            <div className="flex justify-between px-6 py-3 text-xl font-black bg-gray-50 items-center">
-              <div className="flex items-center gap-2">
-                <div className="bg-[#2E7D32] p-1.5 rounded-full">
-                  <DollarSign size={20} className="text-white" />
-                </div>
-                <span className="text-base uppercase tracking-widest text-gray-700">Total Cotizado</span>
-              </div>
-              <span className="text-[#2E7D32] text-2xl">{formatCurrency(valorTotal)}</span>
+        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label style={labelStyle}>Cliente</label>
+            <select value={cliente}
+              onChange={(e) => e.target.value === 'nuevo' ? onNuevoCliente?.() : setCliente(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
+              <option value="">Seleccionar cliente...</option>
+              <option value="nuevo" style={{ color: primaryGreen, fontWeight: '700' }}>+ Crear nuevo cliente</option>
+              {listaDeClientes.map((c, i) => <option key={i} value={c.nombre}>{c.nombre}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={labelStyle}>Número de cotización</label>
+            <div style={{ position: 'relative' }}>
+              <input type="text" placeholder="COT-001" value={numeroCotizacion}
+                onChange={(e) => setNumeroCotizacion(e.target.value)}
+                style={{ ...inputStyle, paddingLeft: '44px' }} />
+              <Hash size={16} color="#9e9e9e" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
           </div>
-
-          {isEditMode ? (
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={handleGuardar}
-                className="flex-1 py-4 bg-[#22C55E] text-white font-black rounded-2xl text-xl uppercase flex items-center justify-center gap-3 hover:bg-[#16A34A] shadow-xl transition-all active:scale-95"
-              >
-                <Save size={28} />
-                Guardar
-              </button>
-              <button
-                type="button"
-                onClick={() => cotizacionAEditar?._id && onDelete?.(cotizacionAEditar._id)}
-                className="flex-1 py-4 bg-[#DC2626] text-white font-black rounded-2xl text-xl uppercase flex items-center justify-center gap-3 hover:bg-[#B91C1C] shadow-xl transition-all active:scale-95"
-              >
-                <Trash2 size={28} />
-                Eliminar
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={handleGuardar}
-              className="w-full py-4 bg-[#2E7D32] text-white font-black rounded-2xl text-xl uppercase flex items-center justify-center gap-4 hover:bg-[#1B5E20] shadow-xl transition-all active:scale-95"
-            >
-              <Save size={28} />
-              Crear cotización
-            </button>
-          )}
-
-          <p className="text-center text-[10px] text-gray-400 mt-2 italic font-semibold uppercase tracking-wider">
-            ⓘ Esta cotización no representa una factura legal hasta ser convertida.
-          </p>
         </div>
       </div>
+
+      {/* Descripción */}
+      <div style={sectionStyle}>
+        <div style={{ background: '#F5F5F5', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FileText size={16} color="#757575" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: '#757575', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Detalle del servicio / producto</span>
+        </div>
+        <div style={{ padding: '24px' }}>
+          <textarea rows="3" placeholder="Describe el producto o servicio..." value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }} />
+        </div>
+      </div>
+
+      {/* Cantidad + Valor */}
+      <div style={{ ...sectionStyle, padding: '0', overflow: 'hidden' }}>
+        <div style={{ background: primaryGreen, padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Tag size={16} color="rgba(255,255,255,0.8)" />
+          <span style={{ fontSize: '12px', fontWeight: '700', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Cantidades y valores</span>
+        </div>
+        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <label style={labelStyle}>Cantidad</label>
+            <input type="number" value={cantidad} onChange={(e) => setCantidad(e.target.value)}
+              style={{ ...inputStyle, fontSize: '18px', fontWeight: '700' }} />
+          </div>
+          <div>
+            <label style={labelStyle}>Valor unitario</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9e9e9e', fontSize: '15px', fontWeight: '700' }}>$</span>
+              <input type="number" value={valorUnitario} onChange={(e) => setValorUnitario(e.target.value)}
+                style={{ ...inputStyle, paddingLeft: '32px', fontSize: '18px', fontWeight: '700' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Vendedor */}
+      <div style={{ ...sectionStyle, padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div>
+          <label style={labelStyle}>Nombre del vendedor</label>
+          <input type="text" placeholder="Nombre completo" value={nombreVendedor}
+            onChange={(e) => setNombreVendedor(e.target.value)} style={inputStyle} />
+        </div>
+        <div>
+          <label style={labelStyle}>Cédula del vendedor</label>
+          <input type="text" placeholder="Número de identificación" value={cedulaVendedor}
+            onChange={(e) => setCedulaVendedor(e.target.value)} style={inputStyle} />
+        </div>
+      </div>
+
+      {/* Total */}
+      <div style={{ background: '#1a1a1a', borderRadius: '20px', overflow: 'hidden', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px' }}>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total cotizado</span>
+          <span style={{ fontSize: '28px', fontWeight: '900', color: midGreen }}>{fmt(valorTotal)}</span>
+        </div>
+      </div>
+
+      <p style={{ textAlign: 'center', fontSize: '11px', color: '#bdbdbd', marginBottom: '20px', fontStyle: 'italic' }}>
+        Esta cotización no representa una factura legal hasta ser convertida.
+      </p>
+
+      {/* Botones */}
+      {isEditMode ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <button type="button" onClick={() => onSave?.(buildPayload())}
+            style={{ padding: '16px', borderRadius: '14px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Save size={20} /> Guardar cambios
+          </button>
+          <button type="button" onClick={() => cotizacionAEditar?._id && onDelete?.(cotizacionAEditar._id)}
+            style={{ padding: '16px', borderRadius: '14px', border: '1.5px solid #ef5350', background: '#fff', color: '#ef5350', fontWeight: '800', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Trash2 size={20} /> Eliminar
+          </button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => onSave?.(buildPayload())}
+          style={{ width: '100%', padding: '18px', borderRadius: '14px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontFamily: 'inherit' }}>
+          <Save size={22} /> Crear cotización
+        </button>
+      )}
     </div>
   );
 };

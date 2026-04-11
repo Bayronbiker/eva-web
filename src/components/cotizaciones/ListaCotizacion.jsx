@@ -1,96 +1,114 @@
 import React from 'react';
-import { ClipboardList, Plus, FileSpreadsheet } from 'lucide-react';
+import { ClipboardList, Plus, FileSpreadsheet, ArrowRight } from 'lucide-react';
+
+const primaryGreen = '#2E7D32';
+const darkGreen = '#1B5E20';
+const lightGreen = '#E8F5E9';
 
 const ListaCotizacion = ({ cotizaciones = [], onSeleccionar, onNueva }) => {
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency', currency: 'COP', maximumFractionDigits: 0
-    }).format(amount ?? 0);
-  };
+  const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n ?? 0);
+  const descPrimera = (c) => c.items?.[0]?.descripcion || '—';
 
-  const descPrimera = (c) => {
-    const it = c.items?.[0];
-    return it?.descripcion || '—';
+  const estadoColor = (estado) => {
+    if (estado === 'aprobada') return { bg: lightGreen, color: darkGreen };
+    if (estado === 'rechazada') return { bg: '#FFEBEE', color: '#C62828' };
+    if (estado === 'convertida') return { bg: '#E3F2FD', color: '#1565C0' };
+    return { bg: '#FFF8E1', color: '#E65100' };
   };
 
   if (!cotizaciones.length) {
     return (
-      <div className="max-w-[1148px] mx-auto p-8 bg-white rounded-3xl border-[6px] border-[#2E7D32] shadow-xl">
-        <div
-          className="flex flex-col items-center justify-center text-center py-16 px-6 rounded-3xl"
-          style={{
-            background: 'linear-gradient(165deg, #E8F5E9 0%, #F8FAFB 45%, #C8E6C9 100%)',
-            border: '2px dashed rgba(46, 125, 50, 0.35)',
-          }}
-        >
-          <div className="mb-6 p-5 rounded-full bg-white shadow-md border-2 border-[#2E7D32]/20">
-            <FileSpreadsheet size={48} className="text-[#2E7D32]" strokeWidth={1.5} />
+      <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ background: '#fff', borderRadius: '24px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
+          <div style={{ background: primaryGreen, padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ClipboardList size={20} color="#fff" />
+              </div>
+              <div>
+                <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#fff' }}>Cotizaciones</h1>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>Sin propuestas aún</p>
+              </div>
+            </div>
+            <button type="button" onClick={onNueva}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', border: 'none', background: '#fff', color: primaryGreen, fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Plus size={16} /> Nueva
+            </button>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-[#1B5E20] uppercase tracking-tight mb-3">
-            No tienes ninguna cotización creada
-          </h2>
-          <p className="text-gray-600 font-medium max-w-md mb-10 text-sm md:text-base">
-            Crea tu primera cotización para verla aquí. Los datos se guardan en tu cuenta y se sincronizan con la app.
-          </p>
-          <button
-            type="button"
-            onClick={onNueva}
-            className="inline-flex items-center gap-3 bg-[#2E7D32] text-white px-10 py-4 rounded-2xl font-black text-lg uppercase shadow-lg hover:bg-[#1B5E20] hover:shadow-xl transition-all active:scale-[0.98]"
-          >
-            <Plus size={22} strokeWidth={2.5} />
-            Crear cotización
-          </button>
+          <div style={{ padding: '64px 32px', textAlign: 'center' }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: lightGreen, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FileSpreadsheet size={32} color={primaryGreen} />
+            </div>
+            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: '800', color: '#1a1a1a' }}>Sin cotizaciones creadas</h2>
+            <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#9e9e9e', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
+              Crea tu primera cotización y aparecerá aquí. Se sincronizan con la app móvil.
+            </p>
+            <button type="button" onClick={onNueva}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 28px', borderRadius: '12px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Plus size={18} /> Crear primera cotización
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
+  const totalProyectado = cotizaciones.reduce((acc, c) => acc + (c.total || 0), 0);
+
   return (
-    <div className="max-w-[1148px] mx-auto p-6 bg-white rounded-3xl border-[6px] border-[#2E7D32] shadow-xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 border-b-2 border-gray-100 pb-4">
-        <div className="flex items-center gap-3">
-          <ClipboardList size={32} className="text-[#2E7D32]" />
-          <h1 className="text-3xl font-black text-gray-800 uppercase">Cotizaciones</h1>
+    <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+      <div style={{ background: primaryGreen, borderRadius: '20px', padding: '24px 28px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ClipboardList size={22} color="#fff" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#fff' }}>Cotizaciones</h1>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{cotizaciones.length} propuesta{cotizaciones.length !== 1 ? 's' : ''} · {fmt(totalProyectado)}</p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onNueva}
-          className="flex items-center gap-2 bg-[#2E7D32] text-white px-6 py-3 rounded-xl font-black uppercase text-sm hover:bg-[#1B5E20] transition-all shadow-md"
-        >
-          <Plus size={20} />
-          Crear cotización
+        <button type="button" onClick={onNueva}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', border: 'none', background: '#fff', color: primaryGreen, fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+          <Plus size={16} /> Nueva cotización
         </button>
       </div>
 
-      <div className="space-y-4">
-        {cotizaciones.map((c) => (
-          <button
-            key={c._id || c.id}
-            type="button"
-            onClick={() => onSeleccionar(c)}
-            className="w-full text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-[#C8E6C9] rounded-2xl border-2 border-[#2E7D32]/20 hover:border-[#2E7D32] hover:shadow-md transition-all cursor-pointer"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-grow">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-[#1B5E20] uppercase tracking-wider">Número</span>
-                <span className="text-lg font-bold text-gray-900">{c.numero}</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {cotizaciones.map((c) => {
+          const est = estadoColor(c.estado);
+          return (
+            <button key={c._id || c.id} type="button" onClick={() => onSeleccionar(c)}
+              style={{ width: '100%', textAlign: 'left', background: '#fff', borderRadius: '16px', border: '1.5px solid #f0f0f0', padding: '20px 24px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = primaryGreen}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = '#f0f0f0'}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: lightGreen, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ClipboardList size={20} color={primaryGreen} />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-[#1B5E20] uppercase tracking-wider">Cliente</span>
-                <span className="text-lg font-bold text-gray-800">{c.clienteNombre}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>{c.clienteNombre}</span>
+                  {c.estado && (
+                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '20px', background: est.bg, color: est.color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      {c.estado}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '12px', color: '#9e9e9e', fontWeight: '600' }}>{c.numero}</span>
+                  <span style={{ fontSize: '12px', color: '#bdbdbd' }}>·</span>
+                  <span style={{ fontSize: '12px', color: '#9e9e9e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '220px' }}>{descPrimera(c)}</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-[#1B5E20] uppercase tracking-wider">Descripción</span>
-                <span className="text-sm font-medium text-gray-700 truncate max-w-[280px]">{descPrimera(c)}</span>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ fontSize: '18px', fontWeight: '900', color: primaryGreen }}>{fmt(c.total)}</div>
               </div>
-            </div>
-            <div className="flex flex-col sm:items-end border-t sm:border-t-0 sm:border-l border-[#2E7D32]/15 pt-3 sm:pt-0 sm:pl-6 sm:min-w-[140px]">
-              <span className="text-[10px] font-black text-[#1B5E20] uppercase tracking-wider">Total</span>
-              <span className="text-2xl font-black text-[#2E7D32]">{formatCurrency(c.total)}</span>
-            </div>
-          </button>
-        ))}
+              <ArrowRight size={18} color="#e0e0e0" style={{ flexShrink: 0 }} />
+            </button>
+          );
+        })}
       </div>
     </div>
   );

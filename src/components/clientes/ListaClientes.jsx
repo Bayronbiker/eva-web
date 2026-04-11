@@ -1,80 +1,112 @@
 import React from 'react';
-import { Users, Phone, Mail, Plus, UserRound } from 'lucide-react';
+import { Users, Phone, Mail, Plus, UserRound, ArrowRight, MapPin } from 'lucide-react';
+
+const primaryGreen = '#2E7D32';
+const darkGreen = '#1B5E20';
+const lightGreen = '#E8F5E9';
 
 const ListaClientes = ({ clientes = [], onNuevo, onEdit }) => {
 
+  const initials = (nombre) => nombre ? nombre.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+
   if (!clientes.length) {
     return (
-      <div className="max-w-[1148px] mx-auto p-8 bg-white rounded-3xl border-[6px] border-[#2E7D32] shadow-xl">
-        <div
-          className="flex flex-col items-center justify-center text-center py-16 px-6 rounded-3xl"
-          style={{
-            background: 'linear-gradient(165deg, #E8F5E9 0%, #F8FAFB 45%, #C8E6C9 100%)',
-            border: '2px dashed rgba(46, 125, 50, 0.35)',
-          }}
-        >
-          <div className="mb-6 p-5 rounded-full bg-white shadow-md border-2 border-[#2E7D32]/20">
-            <UserRound size={48} className="text-[#2E7D32]" strokeWidth={1.5} />
+      <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ background: '#fff', borderRadius: '24px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
+          <div style={{ background: primaryGreen, padding: '28px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={20} color="#fff" />
+              </div>
+              <div>
+                <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#fff' }}>Clientes</h1>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>Sin registros aún</p>
+              </div>
+            </div>
+            <button type="button" onClick={onNuevo}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', border: 'none', background: '#fff', color: primaryGreen, fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Plus size={16} /> Nuevo
+            </button>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-[#1B5E20] uppercase tracking-tight mb-3">
-            No tienes ningún cliente creado
-          </h2>
-          <p className="text-gray-600 font-medium max-w-md mb-10 text-sm md:text-base">
-            Registra tus clientes para usarlos en facturas, cotizaciones y remisiones. Los datos se sincronizan con la app.
-          </p>
-          <button
-            type="button"
-            onClick={onNuevo}
-            className="inline-flex items-center gap-3 bg-[#2E7D32] text-white px-10 py-4 rounded-2xl font-black text-lg uppercase shadow-lg hover:bg-[#1B5E20] hover:shadow-xl transition-all active:scale-[0.98]"
-          >
-            <Plus size={22} strokeWidth={2.5} />
-            Crear cliente
-          </button>
+          <div style={{ padding: '64px 32px', textAlign: 'center' }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '20px', background: lightGreen, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <UserRound size={32} color={primaryGreen} />
+            </div>
+            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: '800', color: '#1a1a1a' }}>Sin clientes registrados</h2>
+            <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#9e9e9e', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.6' }}>
+              Registra tus clientes para usarlos en facturas, cotizaciones y remisiones.
+            </p>
+            <button type="button" onClick={onNuevo}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 28px', borderRadius: '12px', border: 'none', background: primaryGreen, color: '#fff', fontWeight: '800', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              <Plus size={18} /> Crear primer cliente
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[1148px] mx-auto p-6 bg-white rounded-3xl border-[6px] border-[#2E7D32] shadow-xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 border-b-2 border-gray-100 pb-4">
-        <div className="flex items-center gap-3">
-          <Users size={32} className="text-[#2E7D32]" />
-          <h1 className="text-3xl font-black text-gray-800 uppercase">Mis Clientes</h1>
+    <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+      {/* Header */}
+      <div style={{ background: primaryGreen, borderRadius: '20px', padding: '24px 28px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Users size={22} color="#fff" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#fff' }}>Clientes</h1>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>{clientes.length} cliente{clientes.length !== 1 ? 's' : ''} registrado{clientes.length !== 1 ? 's' : ''}</p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onNuevo}
-          className="flex items-center gap-2 bg-[#2E7D32] text-white px-6 py-3 rounded-xl font-black uppercase text-sm hover:bg-[#1B5E20] transition-all shadow-md"
-        >
-          <Plus size={20} />
-          Nuevo cliente
+        <button type="button" onClick={onNuevo}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '10px', border: 'none', background: '#fff', color: primaryGreen, fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+          <Plus size={16} /> Nuevo cliente
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Lista */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {clientes.map((c) => (
-          <div
-            key={c._id || c.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => onEdit(c)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onEdit(c); }}
-            className="p-6 bg-[#C8E6C9] rounded-2xl border-2 border-[#2E7D32]/20 shadow-sm flex flex-col gap-2 cursor-pointer hover:border-[#2E7D32] hover:shadow-md transition-all transform active:scale-95"
+          <button key={c._id || c.id} type="button" onClick={() => onEdit(c)}
+            style={{ width: '100%', textAlign: 'left', background: '#fff', borderRadius: '16px', border: '1.5px solid #f0f0f0', padding: '20px 24px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px', fontFamily: 'inherit', transition: 'border-color 0.15s' }}
+            onMouseEnter={(e) => e.currentTarget.style.borderColor = primaryGreen}
+            onMouseLeave={(e) => e.currentTarget.style.borderColor = '#f0f0f0'}
           >
-            <div className="flex items-center justify-between border-b border-[#2E7D32]/10 pb-2 mb-2">
-              <span className="text-xl font-black text-[#1B5E20] uppercase">{c.nombre}</span>
-              <span className="text-[10px] bg-white px-2 py-1 rounded-md font-bold text-gray-500 uppercase">{c.ciudad || '—'}</span>
+            {/* Avatar */}
+            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: primaryGreen, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '800', color: '#fff', flexShrink: 0 }}>
+              {initials(c.nombre)}
             </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2 text-gray-700">
-                <Phone size={14} className="text-[#2E7D32]" /> {c.telefono || 'Sin teléfono'}
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>{c.nombre}</span>
+                {c.ciudad && (
+                  <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '20px', background: lightGreen, color: darkGreen }}>
+                    {c.ciudad}
+                  </span>
+                )}
               </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <Mail size={14} className="text-[#2E7D32]" /> {c.email || '—'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                {c.telefono && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Phone size={12} color="#9e9e9e" />
+                    <span style={{ fontSize: '12px', color: '#9e9e9e' }}>{c.telefono}</span>
+                  </div>
+                )}
+                {c.email && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Mail size={12} color="#9e9e9e" />
+                    <span style={{ fontSize: '12px', color: '#9e9e9e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{c.email}</span>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+
+            <ArrowRight size={18} color="#e0e0e0" style={{ flexShrink: 0 }} />
+          </button>
         ))}
       </div>
     </div>
