@@ -2,15 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  LayoutDashboard, Wallet, ArrowUpCircle, ArrowDownCircle, Leaf, LogOut,
-  Loader2, FileText, ClipboardList, PackageCheck, Users, BarChart3,
-  Search, Bell, Settings, ChevronRight, Contact, HelpCircle, Phone,
-  ExternalLink, Menu, X, Plus, Activity, Shield
+  LayoutDashboard, Leaf, LogOut, Loader2, FileText, ClipboardList,
+  PackageCheck, Users, BarChart3, Bell, Settings, ChevronRight,
+  Contact, HelpCircle, Phone, ExternalLink, Menu, X, Plus,
+  Activity, Shield, ArrowUpCircle, ArrowDownCircle, Package,
+  Wallet, TrendingUp
 } from 'lucide-react';
-import {
-  BarChart, Bar, ResponsiveContainer, AreaChart, Area,
-  XAxis, YAxis, Tooltip, CartesianGrid
-} from 'recharts';
+import { BarChart, Bar, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import CrearFactura from './facturas/CrearFactura';
 import CrearCotizacion from './cotizaciones/CrearCotizacion';
 import CrearRemision from './remisiones/CrearRemision';
@@ -19,6 +17,12 @@ import ListaCotizacion from './cotizaciones/ListaCotizacion';
 import ListaRemision from './remisiones/ListaRemision';
 import CrearCliente from './clientes/CrearCliente';
 import ListaClientes from './clientes/ListaClientes';
+import CrearGasto from './movimientos/CrearGasto';
+import CrearIngreso from './movimientos/CrearIngreso';
+import Inventario from './inventario/Inventario';
+import Balance from './balance/Balance';
+import Configuracion from './configuracion/Configuracion';
+import Notificaciones from './notificaciones/Notificaciones';
 import config from '../config';
 import { jwtDecode } from 'jwt-decode';
 
@@ -65,7 +69,7 @@ const Home = () => {
 
   const axiosAuth = useCallback(() => {
     const token = localStorage.getItem('token');
-    return { headers: { Authorization: `Bearer ${token}` } };
+    return { headers: { Authorization: 'Bearer ' + token } };
   }, []);
 
   const fetchData = async () => {
@@ -74,12 +78,12 @@ const Home = () => {
       if (!token) { navigate('/login'); return; }
       const cfg = axiosAuth();
       const [resMov, resResumen, resFacturas, resClientes, resCotiz, resRem] = await Promise.all([
-        axios.get(`${BASE_URL}/movimientos`, cfg).catch(() => ({ data: [] })),
-        axios.get(`${BASE_URL}/resumen`, cfg).catch(() => ({ data: { saldo: 0, ingresos: 0, gastos: 0 } })),
-        axios.get(`${BASE_URL}/facturas`, cfg).catch(() => ({ data: [] })),
-        axios.get(`${BASE_URL}/clientes`, cfg).catch(() => ({ data: [] })),
-        axios.get(`${BASE_URL}/cotizaciones`, cfg).catch(() => ({ data: [] })),
-        axios.get(`${BASE_URL}/remisiones`, cfg).catch(() => ({ data: [] })),
+        axios.get(BASE_URL + '/movimientos', cfg).catch(() => ({ data: [] })),
+        axios.get(BASE_URL + '/resumen', cfg).catch(() => ({ data: { saldo: 0, ingresos: 0, gastos: 0 } })),
+        axios.get(BASE_URL + '/facturas', cfg).catch(() => ({ data: [] })),
+        axios.get(BASE_URL + '/clientes', cfg).catch(() => ({ data: [] })),
+        axios.get(BASE_URL + '/cotizaciones', cfg).catch(() => ({ data: [] })),
+        axios.get(BASE_URL + '/remisiones', cfg).catch(() => ({ data: [] })),
       ]);
       setMovimientos(resMov.data);
       setResumen(resResumen.data);
@@ -99,30 +103,26 @@ const Home = () => {
   };
 
   const banners = [
-    { title: 'Facturación inteligente', desc: 'Crea y gestiona facturas con estándares legales automáticos y cálculo de IVA en tiempo real.', icon: FileText, img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=800' },
+    { title: 'Facturacion inteligente', desc: 'Crea y gestiona facturas con estandares legales automaticos y calculo de IVA en tiempo real.', icon: FileText, img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=800' },
     { title: 'Control financiero total', desc: 'Monitorea ingresos, gastos y flujo de caja desde un solo panel centralizado y sincronizado.', icon: BarChart3, img: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=800' },
     { title: 'Seguridad empresarial', desc: 'Tus datos cifrados en servidores propios. Acceso desde web y app movil con sesion segura.', icon: Shield, img: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800' },
   ];
 
   useEffect(() => {
     fetchData();
-    const int = setInterval(() => setCurrentBanner((p) => (p + 1) % banners.length), 5000);
+    const int = setInterval(() => setCurrentBanner(p => (p + 1) % banners.length), 5000);
     return () => clearInterval(int);
   }, []);
 
   const buildChartData = () => {
     const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
     return days.map((d, i) => {
-      const dayMovs = movimientos.filter(m => {
-        const md = new Date(m.fecha || m.createdAt);
-        return md.getDay() === (i + 1) % 7;
-      });
+      const dayMovs = movimientos.filter(m => new Date(m.fecha || m.createdAt).getDay() === (i + 1) % 7);
       const ing = dayMovs.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
       const gas = dayMovs.filter(m => m.tipo !== 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
       return { d, ingresos: ing || Math.round(Math.random() * 500000 + 100000), gastos: gas || Math.round(Math.random() * 300000 + 50000) };
     });
   };
-
   const chartData = buildChartData();
 
   const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
@@ -138,6 +138,8 @@ const Home = () => {
     { id: 'cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
     { id: 'remisiones', label: 'Remisiones', icon: PackageCheck },
     { id: 'clientes', label: 'Clientes', icon: Users },
+    { id: 'inventario', label: 'Inventario', icon: Package },
+    { id: 'balance', label: 'Balance', icon: Wallet },
     { id: 'estadisticas', label: 'Estadisticas', icon: BarChart3 },
     { id: 'contactos', label: 'Contactos', icon: Contact },
     { id: 'ayuda', label: 'Ayuda', icon: HelpCircle },
@@ -154,6 +156,17 @@ const Home = () => {
 
   const hora = new Date().getHours();
   const saludo = hora < 12 ? 'Buenos dias' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
+
+  const handleSaveMovimiento = async (datos) => {
+    try {
+      const userId = getUserId();
+      const cfg = axiosAuth();
+      await axios.post(BASE_URL + '/movimientos', { ...datos, userId }, cfg);
+      alert((datos.tipo === 'ingreso' ? 'Ingreso' : 'Gasto') + ' registrado correctamente');
+      await fetchData();
+      setSeccionActiva('balance');
+    } catch (e) { alert('Error al registrar: ' + (e.response?.data?.message || e.message)); }
+  };
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -240,8 +253,7 @@ const Home = () => {
         <div style={{ borderRadius: '20px', overflow: 'hidden', position: 'relative', minHeight: '200px' }}>
           {banners.map((b, i) => (
             <div key={i} style={{
-              position: 'absolute', inset: 0, transition: 'opacity 0.8s',
-              opacity: i === currentBanner ? 1 : 0,
+              position: 'absolute', inset: 0, transition: 'opacity 0.8s', opacity: i === currentBanner ? 1 : 0,
               backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.75)), url(' + b.img + ')',
               backgroundSize: 'cover', backgroundPosition: 'center',
               display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '20px',
@@ -294,8 +306,8 @@ const Home = () => {
           {[
             { label: 'Nueva factura', desc: 'Emitir documento', icon: FileText, color: G, action: () => { setSeccionActiva('facturas'); setFacturaSeleccionada(null); setVistaFactura('crear'); } },
             { label: 'Nueva cotizacion', desc: 'Crear propuesta', icon: ClipboardList, color: '#1565C0', action: () => { setSeccionActiva('cotizaciones'); setCotizacionSeleccionada(null); setVistaCotizacion('crear'); } },
-            { label: 'Nueva remision', desc: 'Registrar entrega', icon: PackageCheck, color: '#E65100', action: () => { setSeccionActiva('remisiones'); setRemisionSeleccionada(null); setVistaRemision('crear'); } },
-            { label: 'Nuevo cliente', desc: 'Agregar contacto', icon: Users, color: '#6A1B9A', action: () => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); } },
+            { label: 'Nuevo ingreso', desc: 'Registrar entrada', icon: ArrowUpCircle, color: G, action: () => setSeccionActiva('ingresos') },
+            { label: 'Nuevo gasto', desc: 'Registrar egreso', icon: ArrowDownCircle, color: '#ef5350', action: () => setSeccionActiva('gastos') },
           ].map((a, i) => (
             <button key={i} type="button" onClick={a.action}
               style={{ background: '#fff', border: '1.5px solid #f0f0f0', borderRadius: '14px', padding: '12px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left', fontFamily: 'inherit' }}>
@@ -314,11 +326,9 @@ const Home = () => {
 
       <div className="dash-bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
         <div style={{ background: '#fff', borderRadius: '20px', padding: '22px', border: '1.5px solid #f0f0f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>Tendencia ingresos</h3>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9e9e9e' }}>Esta semana</p>
-            </div>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>Tendencia ingresos</h3>
+            <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9e9e9e' }}>Esta semana</p>
           </div>
           <div style={{ height: '150px' }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -351,7 +361,7 @@ const Home = () => {
                   <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: m.tipo === 'ingreso' ? GL : '#FFEBEE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {m.tipo === 'ingreso' ? <ArrowUpCircle size={14} color={G} /> : <ArrowDownCircle size={14} color="#ef5350" />}
                   </div>
-                  <span style={{ flex: 1, fontSize: '12px', color: '#424242', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.descripcion}</span>
+                  <span style={{ flex: 1, fontSize: '12px', color: '#424242', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.descripcion || m.categoria || (m.tipo === 'ingreso' ? 'Ingreso' : 'Gasto')}</span>
                   <span style={{ fontSize: '12px', fontWeight: '800', color: m.tipo === 'ingreso' ? G : '#ef5350', flexShrink: 0 }}>
                     {m.tipo === 'ingreso' ? '+' : '-'}{fmtShort(m.monto)}
                   </span>
@@ -415,89 +425,44 @@ const Home = () => {
     <>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .eva-sidebar {
-          width: 250px;
-          background-color: #1a1a1a;
-          display: flex;
-          flex-direction: column;
-          flex-shrink: 0;
-          z-index: 100;
-          transition: transform 0.3s ease;
-        }
-
+        .eva-sidebar { width: 250px; background-color: #1a1a1a; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: transform 0.3s ease; }
         @media (max-width: 768px) {
-          .eva-sidebar {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100% !important;
-            width: 280px !important;
-            z-index: 400 !important;
-            transform: translateX(-100%) !important;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.3);
-          }
-          .eva-sidebar.open {
-            transform: translateX(0) !important;
-          }
-          .eva-hamburger {
-            display: flex !important;
-          }
-          .eva-main-content {
-            padding: 14px !important;
-          }
-          .dash-top-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .dash-mid-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .dash-bottom-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .dash-stats-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .eva-sidebar { position: fixed !important; top: 0 !important; left: 0 !important; height: 100% !important; width: 280px !important; z-index: 400 !important; transform: translateX(-100%) !important; box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+          .eva-sidebar.open { transform: translateX(0) !important; }
+          .eva-hamburger { display: flex !important; }
+          .eva-main-content { padding: 14px !important; }
+          .dash-top-grid { grid-template-columns: 1fr !important; }
+          .dash-mid-grid { grid-template-columns: 1fr !important; }
+          .dash-bottom-grid { grid-template-columns: 1fr !important; }
+          .dash-stats-grid { grid-template-columns: 1fr !important; }
         }
-
-        @media (min-width: 769px) {
-          .eva-hamburger {
-            display: none !important;
-          }
-        }
+        @media (min-width: 769px) { .eva-hamburger { display: none !important; } }
       `}</style>
 
       <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#F8FAFB', fontFamily: "'Plus Jakarta Sans', sans-serif", overflow: 'hidden' }}>
 
-        {/* Overlay: solo visible en mobile cuando sidebar abierto */}
         {sidebarAbierto && (
-          <div
-            onClick={() => setSidebarAbierto(false)}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300 }}
-          />
+          <div onClick={() => setSidebarAbierto(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 300 }} />
         )}
 
-        {/* SIDEBAR */}
         <aside className={'eva-sidebar' + (sidebarAbierto ? ' open' : '')}>
           <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Leaf size={18} color="#fff" fill="#fff" />
             </div>
             <span style={{ fontSize: '20px', fontWeight: '900', color: '#fff', letterSpacing: '-1px' }}>EVA.</span>
-            {/* Boton cerrar en mobile */}
             <button type="button" onClick={() => setSidebarAbierto(false)}
               style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '8px', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               className="eva-hamburger">
               <X size={16} color="rgba(255,255,255,0.7)" />
             </button>
           </div>
-
           <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
-            {MENU_ITEMS.map((item) => {
+            {MENU_ITEMS.map(item => {
               const active = seccionActiva === item.id;
               return (
-                <button key={item.id} type="button"
-                  onClick={item.action ? item.action : () => handleMenuNav(item)}
+                <button key={item.id} type="button" onClick={item.action ? item.action : () => handleMenuNav(item)}
                   style={{ width: '100%', display: 'flex', alignItems: 'center', padding: '11px 14px', borderRadius: '12px', border: 'none', cursor: 'pointer', marginBottom: '3px', background: active ? G : 'transparent', fontFamily: 'inherit' }}>
                   <item.icon size={18} style={{ color: active ? '#fff' : 'rgba(255,255,255,0.45)', flexShrink: 0 }} />
                   <span style={{ fontSize: '13px', fontWeight: '700', color: active ? '#fff' : 'rgba(255,255,255,0.55)', marginLeft: '12px' }}>{item.label}</span>
@@ -506,7 +471,6 @@ const Home = () => {
               );
             })}
           </nav>
-
           <div style={{ padding: '14px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '12px' }}>
               <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '900', color: '#fff', flexShrink: 0 }}>
@@ -520,53 +484,69 @@ const Home = () => {
           </div>
         </aside>
 
-        {/* CONTENIDO */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-
-          {/* HEADER */}
           <header style={{ height: '60px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1.5px solid #f0f0f0', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {/* Hamburger - solo mobile via CSS */}
-              <button type="button" onClick={() => setSidebarAbierto(true)}
-                className="eva-hamburger"
+              <button type="button" onClick={() => setSidebarAbierto(true)} className="eva-hamburger"
                 style={{ display: 'none', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', background: '#F5F5F5', border: 'none', borderRadius: '10px', cursor: 'pointer' }}>
                 <Menu size={18} color="#424242" />
               </button>
               <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a', textTransform: 'capitalize' }}>{seccionActiva}</h2>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <div style={{ width: '34px', height: '34px', background: '#F5F5F5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="button" onClick={() => setSeccionActiva('notificaciones')}
+                style={{ position: 'relative', width: '34px', height: '34px', background: '#F5F5F5', border: 'none', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Bell size={16} color="#9e9e9e" />
-              </div>
-              <div style={{ width: '34px', height: '34px', background: '#F5F5F5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'absolute', top: '6px', right: '6px', width: '7px', height: '7px', borderRadius: '50%', background: '#ef5350', border: '1.5px solid #fff' }} />
+              </button>
+              <button type="button" onClick={() => setSeccionActiva('configuracion')}
+                style={{ width: '34px', height: '34px', background: '#F5F5F5', border: 'none', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Settings size={16} color="#9e9e9e" />
-              </div>
+              </button>
             </div>
           </header>
 
           <main className="eva-main-content" style={{ flex: 1, padding: '24px 28px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+
             {seccionActiva === 'dashboard' ? renderDashboard()
 
-            : seccionActiva === 'facturas' ? (
+            : seccionActiva === 'ingresos' ? (
+              <CrearIngreso onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
+
+            ) : seccionActiva === 'gastos' ? (
+              <CrearGasto onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
+
+            ) : seccionActiva === 'balance' ? (
+              <Balance movimientos={movimientos} resumen={resumen} />
+
+            ) : seccionActiva === 'inventario' ? (
+              <Inventario />
+
+            ) : seccionActiva === 'configuracion' ? (
+              <Configuracion onBack={() => setSeccionActiva('dashboard')} userData={userData} />
+
+            ) : seccionActiva === 'notificaciones' ? (
+              <Notificaciones onBack={() => setSeccionActiva('dashboard')} />
+
+            ) : seccionActiva === 'facturas' ? (
               vistaFactura === 'lista' ? (
-                <ListaFactura facturas={facturas} onSeleccionar={(f) => { setFacturaSeleccionada(f); setVistaFactura('crear'); }} onNueva={() => { setFacturaSeleccionada(null); setVistaFactura('crear'); }} />
+                <ListaFactura facturas={facturas} onSeleccionar={f => { setFacturaSeleccionada(f); setVistaFactura('crear'); }} onNueva={() => { setFacturaSeleccionada(null); setVistaFactura('crear'); }} />
               ) : (
                 <CrearFactura listaDeClientes={clientes} facturaAEditar={facturaSeleccionada}
                   onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
                   onBack={() => { setFacturaSeleccionada(null); setVistaFactura('lista'); }}
-                  onDelete={async (id) => {
+                  onDelete={async id => {
                     if (!window.confirm('Eliminar esta factura?')) return;
-                    try { await axios.delete(`${BASE_URL}/facturas/${id}`, axiosAuth()); alert('Factura eliminada'); setFacturaSeleccionada(null); setVistaFactura('lista'); await fetchData(); }
-                    catch (e) { alert('Error al eliminar: ' + (e.response?.data?.message || e.message)); }
+                    try { await axios.delete(BASE_URL + '/facturas/' + id, axiosAuth()); alert('Factura eliminada'); setFacturaSeleccionada(null); setVistaFactura('lista'); await fetchData(); }
+                    catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
                   }}
-                  onSave={async (d) => {
+                  onSave={async d => {
                     try {
                       const token = localStorage.getItem('token');
                       if (!token) { navigate('/login'); return; }
-                      const userId = getUserId();
-                      if (!userId) { alert('Sesion invalida'); return; }
+                      const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
                       const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find((c) => c.nombre === d.cliente);
+                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
                       const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
                       if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
                       const costoPorUnidad = Number(d.costoPorUnidad) || 0;
@@ -574,16 +554,14 @@ const Home = () => {
                       const descPorc = Number(d.descPorc) || 0;
                       const ivaPorc = Number(d.ivaPorc) || 0;
                       const totalBruto = costoPorUnidad * cantidad;
-                      const valorDescuento = totalBruto * (descPorc / 100);
-                      const subtotal = totalBruto - valorDescuento;
-                      const valorIva = subtotal * (ivaPorc / 100);
-                      const valorNeto = subtotal + valorIva;
+                      const subtotal = totalBruto - totalBruto * (descPorc / 100);
+                      const valorNeto = subtotal + subtotal * (ivaPorc / 100);
                       const itemPayload = { descripcion: d.descripcion || '', cantidad, precioUnitario: costoPorUnidad, total: totalBruto };
                       if (d._id) {
-                        await axios.put(`${BASE_URL}/facturas/${d._id}`, { numero: d.numero || `FAC-${Date.now()}`, clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, items: [itemPayload], estado: facturaSeleccionada?.estado || 'pendiente' }, cfg);
+                        await axios.put(BASE_URL + '/facturas/' + d._id, { numero: d.numero || 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, items: [itemPayload], estado: facturaSeleccionada?.estado || 'pendiente' }, cfg);
                         alert('Factura actualizada');
                       } else {
-                        await axios.post(`${BASE_URL}/facturas`, { numero: `FAC-${Date.now()}`, clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, userId, items: [itemPayload], estado: 'pendiente' }, cfg);
+                        await axios.post(BASE_URL + '/facturas', { numero: 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, userId, items: [itemPayload], estado: 'pendiente' }, cfg);
                         alert('Factura creada correctamente');
                       }
                       await fetchData(); setFacturaSeleccionada(null); setVistaFactura('lista');
@@ -593,24 +571,24 @@ const Home = () => {
 
             ) : seccionActiva === 'cotizaciones' ? (
               vistaCotizacion === 'lista' ? (
-                <ListaCotizacion cotizaciones={cotizaciones} onSeleccionar={(c) => { setCotizacionSeleccionada(c); setVistaCotizacion('crear'); }} onNueva={() => { setCotizacionSeleccionada(null); setVistaCotizacion('crear'); }} />
+                <ListaCotizacion cotizaciones={cotizaciones} onSeleccionar={c => { setCotizacionSeleccionada(c); setVistaCotizacion('crear'); }} onNueva={() => { setCotizacionSeleccionada(null); setVistaCotizacion('crear'); }} />
               ) : (
                 <CrearCotizacion listaDeClientes={clientes} cotizacionAEditar={cotizacionSeleccionada}
                   onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
                   onBack={() => { setCotizacionSeleccionada(null); setVistaCotizacion('lista'); }}
-                  onDelete={async (id) => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(`${BASE_URL}/cotizaciones/${id}`, axiosAuth()); alert('Cotizacion eliminada'); setCotizacionSeleccionada(null); setVistaCotizacion('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
-                  onSave={async (d) => {
+                  onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/cotizaciones/' + id, axiosAuth()); alert('Cotizacion eliminada'); setCotizacionSeleccionada(null); setVistaCotizacion('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
+                  onSave={async d => {
                     try {
                       const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
                       const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find((c) => c.nombre === d.cliente);
+                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
                       const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
                       if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
                       const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
-                      const numero = (d.numeroCotizacion || '').trim() || `COT-${Date.now()}`;
+                      const numero = (d.numeroCotizacion || '').trim() || 'COT-' + Date.now();
                       const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
-                      if (d._id) { await axios.put(`${BASE_URL}/cotizaciones/${d._id}`, { numero: (d.numeroCotizacion || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, items: [itemPayload], estado: cotizacionSeleccionada?.estado || 'pendiente' }, cfg); alert('Cotizacion actualizada'); }
-                      else { await axios.post(`${BASE_URL}/cotizaciones`, { numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, userId, items: [itemPayload] }, cfg); alert('Cotizacion creada correctamente'); }
+                      if (d._id) { await axios.put(BASE_URL + '/cotizaciones/' + d._id, { numero: (d.numeroCotizacion || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, items: [itemPayload], estado: cotizacionSeleccionada?.estado || 'pendiente' }, cfg); alert('Cotizacion actualizada'); }
+                      else { await axios.post(BASE_URL + '/cotizaciones', { numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, userId, items: [itemPayload] }, cfg); alert('Cotizacion creada'); }
                       await fetchData(); setCotizacionSeleccionada(null); setVistaCotizacion('lista');
                     } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
                   }} />
@@ -618,24 +596,24 @@ const Home = () => {
 
             ) : seccionActiva === 'remisiones' ? (
               vistaRemision === 'lista' ? (
-                <ListaRemision remisiones={remisiones} onSeleccionar={(r) => { setRemisionSeleccionada(r); setVistaRemision('crear'); }} onNueva={() => { setRemisionSeleccionada(null); setVistaRemision('crear'); }} />
+                <ListaRemision remisiones={remisiones} onSeleccionar={r => { setRemisionSeleccionada(r); setVistaRemision('crear'); }} onNueva={() => { setRemisionSeleccionada(null); setVistaRemision('crear'); }} />
               ) : (
                 <CrearRemision listaDeClientes={clientes} remisionAEditar={remisionSeleccionada}
                   onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
                   onBack={() => { setRemisionSeleccionada(null); setVistaRemision('lista'); }}
-                  onDelete={async (id) => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(`${BASE_URL}/remisiones/${id}`, axiosAuth()); alert('Remision eliminada'); setRemisionSeleccionada(null); setVistaRemision('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
-                  onSave={async (d) => {
+                  onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/remisiones/' + id, axiosAuth()); alert('Remision eliminada'); setRemisionSeleccionada(null); setVistaRemision('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
+                  onSave={async d => {
                     try {
                       const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
                       const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find((c) => c.nombre === d.cliente);
+                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
                       const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
                       if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
                       const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
-                      const numero = (d.numeroRemision || '').trim() || `REM-${Date.now()}`;
+                      const numero = (d.numeroRemision || '').trim() || 'REM-' + Date.now();
                       const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
-                      if (d._id) { await axios.put(`${BASE_URL}/remisiones/${d._id}`, { numero: (d.numeroRemision || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, direccionEntrega: remisionSeleccionada?.direccionEntrega || '', items: [itemPayload], estado: remisionSeleccionada?.estado || 'pendiente' }, cfg); alert('Remision actualizada'); }
-                      else { await axios.post(`${BASE_URL}/remisiones`, { numero, clienteId, clienteNombre: d.cliente, items: [itemPayload], userId }, cfg); alert('Remision creada correctamente'); }
+                      if (d._id) { await axios.put(BASE_URL + '/remisiones/' + d._id, { numero: (d.numeroRemision || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, direccionEntrega: remisionSeleccionada?.direccionEntrega || '', items: [itemPayload], estado: remisionSeleccionada?.estado || 'pendiente' }, cfg); alert('Remision actualizada'); }
+                      else { await axios.post(BASE_URL + '/remisiones', { numero, clienteId, clienteNombre: d.cliente, items: [itemPayload], userId }, cfg); alert('Remision creada'); }
                       await fetchData(); setRemisionSeleccionada(null); setVistaRemision('lista');
                     } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
                   }} />
@@ -643,23 +621,23 @@ const Home = () => {
 
             ) : seccionActiva === 'clientes' ? (
               vistaCliente === 'lista' ? (
-                <ListaClientes clientes={clientes} onNuevo={() => { setClienteSeleccionado(null); setVistaCliente('crear'); }} onEdit={(c) => { setClienteSeleccionado(c); setVistaCliente('crear'); }} />
+                <ListaClientes clientes={clientes} onNuevo={() => { setClienteSeleccionado(null); setVistaCliente('crear'); }} onEdit={c => { setClienteSeleccionado(c); setVistaCliente('crear'); }} />
               ) : (
                 <CrearCliente
                   clienteAEditar={clienteSeleccionado ? { ...clienteSeleccionado, cedulaOrNit: String(clienteSeleccionado.nit ?? clienteSeleccionado.cedulaOrNit ?? '') } : null}
                   onBack={() => { setVistaCliente('lista'); setClienteSeleccionado(null); }}
-                  onSave={async (datos) => {
+                  onSave={async datos => {
                     try {
                       const cfg = axiosAuth(); const userId = getUserId();
                       const payload = { nombre: datos.nombre, nit: Number(datos.cedulaOrNit), ciudad: datos.ciudad, actividadEconomica: datos.actividadEconomica, telefono: datos.telefono, email: datos.email, direccion: datos.direccion, tipo: 'natural', userId };
-                      if (clienteSeleccionado) { await axios.put(`${BASE_URL}/clientes/${clienteSeleccionado._id}`, payload, cfg); alert('Cliente actualizado'); }
-                      else { await axios.post(`${BASE_URL}/clientes`, payload, cfg); alert('Cliente guardado'); }
+                      if (clienteSeleccionado) { await axios.put(BASE_URL + '/clientes/' + clienteSeleccionado._id, payload, cfg); alert('Cliente actualizado'); }
+                      else { await axios.post(BASE_URL + '/clientes', payload, cfg); alert('Cliente guardado'); }
                       await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null);
                     } catch (e) { alert('Error: ' + (e.response?.data?.message || 'Servidor no responde')); }
                   }}
-                  onDelete={async (id) => {
+                  onDelete={async id => {
                     if (window.confirm('Eliminar este cliente?')) {
-                      try { await axios.delete(`${BASE_URL}/clientes/${id}`, axiosAuth()); alert('Cliente eliminado'); await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null); }
+                      try { await axios.delete(BASE_URL + '/clientes/' + id, axiosAuth()); alert('Cliente eliminado'); await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null); }
                       catch (e) { alert('Error al eliminar'); }
                     }
                   }} />
@@ -670,8 +648,8 @@ const Home = () => {
             : seccionActiva === 'contactos' ? (
               <div style={{ maxWidth: '560px', margin: '0 auto' }}>
                 <div style={{ background: '#fff', borderRadius: '24px', padding: '40px 32px', border: '1.5px solid #f0f0f0', textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '22px', background: G, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '900', color: '#fff' }}>JZ</div>
-                  <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: '#1a1a1a' }}>Jhon Zamudio Santafe</h2>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '22px', background: G, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '900', color: '#fff' }}>BZ</div>
+                  <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: '#1a1a1a' }}>Bayron Zamudio Santafe</h2>
                   <p style={{ margin: '0 0 24px', fontSize: '13px', color: G, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Disenador y Full Stack Developer</p>
                   <div style={{ background: '#F9FAFB', borderRadius: '14px', padding: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: GL, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -695,28 +673,13 @@ const Home = () => {
                   <h2 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: '800', color: '#1a1a1a' }}>Centro de ayuda</h2>
                   <p style={{ margin: 0, fontSize: '14px', color: '#9e9e9e' }}>Como podemos ayudarte con EVA?</p>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }} className="dash-bottom-grid">
-                  {[
-                    { icon: Search, label: 'Documentacion', desc: 'Guias de uso', color: G, bg: GL },
-                    { icon: Bell, label: 'Novedades', desc: 'Ultimas actualizaciones', color: '#1565C0', bg: '#E3F2FD' },
-                  ].map((c, i) => (
-                    <div key={i} style={{ background: '#fff', borderRadius: '16px', padding: '18px', border: '1.5px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                      <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <c.icon size={18} color={c.color} />
-                      </div>
-                      <div>
-                        <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: '800', color: '#1a1a1a' }}>{c.label}</p>
-                        <p style={{ margin: 0, fontSize: '11px', color: '#9e9e9e' }}>{c.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
                 <div style={{ background: '#fff', borderRadius: '20px', padding: '26px', border: '1.5px solid #f0f0f0', marginBottom: '14px' }}>
                   <h3 style={{ margin: '0 0 18px', fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>Preguntas frecuentes</h3>
                   {[
-                    { q: 'Como crear mi primera factura?', a: "Ve a Facturacion y haz clic en Nueva factura. Asegurate de tener clientes creados primero." },
-                    { q: 'Puedo exportar mis reportes?', a: 'Proximamente podras descargar informes en PDF y Excel desde Estadisticas.' },
-                    { q: 'Es seguro almacenar mis datos?', a: 'Si. EVA usa cifrado y los datos se guardan en servidores seguros.' },
+                    { q: 'Como crear mi primera factura?', a: 'Ve a Facturacion y haz clic en Nueva factura. Asegurate de tener clientes creados primero.' },
+                    { q: 'Como registro un gasto?', a: 'Desde el Dashboard, clic en el boton rojo + Gasto, o ve al menu lateral en Balance.' },
+                    { q: 'Como sincroniza con la app movil?', a: 'Los datos se sincronizan automaticamente. La app usa el mismo servidor (Railway) y base de datos (MongoDB Atlas).' },
+                    { q: 'Puedo imprimir facturas?', a: 'Si. Abre cualquier factura y usa el boton Imprimir. Se genera un documento con formato legal colombiano.' },
                   ].map((item, i, arr) => (
                     <div key={i} style={{ padding: '14px 0', borderBottom: i < arr.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
                       <p style={{ margin: '0 0 5px', fontSize: '13px', fontWeight: '700', color: '#1a1a1a' }}>{item.q}</p>
