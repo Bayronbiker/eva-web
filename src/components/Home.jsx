@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  LayoutDashboard, Leaf, LogOut, Loader2, FileText, ClipboardList,
+  LayoutDashboard, LogOut, Loader2, FileText, ClipboardList,
   PackageCheck, Users, BarChart3, Bell, Settings, ChevronRight,
   Contact, HelpCircle, Phone, ExternalLink, Menu, X, Plus,
   Activity, Shield, ArrowUpCircle, ArrowDownCircle, Package,
@@ -189,7 +189,7 @@ const Home = () => {
       <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', background: '#F8FAFB' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Leaf size={24} color="#fff" fill="#fff" />
+            <img src="/logo.png" style={{ width: "28px", height: "28px", objectFit: "contain" }} />
           </div>
           <Loader2 size={28} style={{ color: G }} className="animate-spin" />
         </div>
@@ -449,7 +449,7 @@ const Home = () => {
         <aside className={'eva-sidebar' + (sidebarAbierto ? ' open' : '')}>
           <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: G, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Leaf size={18} color="#fff" fill="#fff" />
+              <img src="/logo.png" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
             </div>
             <span style={{ fontSize: '20px', fontWeight: '900', color: '#fff', letterSpacing: '-1px' }}>EVA.</span>
             <button type="button" onClick={() => setSidebarAbierto(false)}
