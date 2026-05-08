@@ -254,21 +254,22 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
         </div>
       </div>
 
-      {/* Balance total + botones exportar */}
-      <div style={{ background: '#1a1a1a', borderRadius: '20px', padding: '24px', marginBottom: '16px' }}>
+      {/* Balance total */}
+      <div style={{ background: '#1a1a1a', borderRadius: '20px', padding: '24px', marginBottom: '12px' }}>
         <p style={{ margin: '0 0 6px', fontSize: '11px', fontWeight: '700', color: '#9e9e9e', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center' }}>Balance Total</p>
-        <p style={{ margin: '0 0 20px', fontSize: '38px', fontWeight: '900', color: resumen.saldo >= 0 ? '#4CAF50' : '#ef5350', letterSpacing: '-1px', textAlign: 'center' }}>{fmt(resumen.saldo)}</p>
+        <p style={{ margin: 0, fontSize: '38px', fontWeight: '900', color: resumen.saldo >= 0 ? '#4CAF50' : '#ef5350', letterSpacing: '-1px', textAlign: 'center' }}>{fmt(resumen.saldo)}</p>
+      </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={exportarPDF} type="button"
-            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: '#ef5350', color: '#fff', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'inherit' }}>
-            <FileText size={15} /> Exportar PDF
-          </button>
-          <button onClick={exportarExcel} type="button"
-            style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'inherit' }}>
-            <Table size={15} /> Exportar Excel
-          </button>
-        </div>
+      {/* Botones exportar */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+        <button onClick={exportarPDF} type="button"
+          style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: '#ef5350', color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
+          <FileText size={16} /> Exportar PDF
+        </button>
+        <button onClick={exportarExcel} type="button"
+          style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
+          <Table size={16} /> Exportar Excel
+        </button>
       </div>
 
       {/* Lista de movimientos */}

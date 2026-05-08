@@ -115,12 +115,26 @@ const Home = () => {
   }, []);
 
   const buildChartData = () => {
-    const days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+    const hoy = new Date();
+    const lunes = new Date(hoy);
+    const diaSemana = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
+    lunes.setDate(hoy.getDate() - diaSemana);
+    lunes.setHours(0, 0, 0, 0);
+
+    const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
     return days.map((d, i) => {
-      const dayMovs = movimientos.filter(m => new Date(m.fecha || m.createdAt).getDay() === (i + 1) % 7);
+      const diaInicio = new Date(lunes);
+      diaInicio.setDate(lunes.getDate() + i);
+      const diaFin = new Date(diaInicio);
+      diaFin.setDate(diaInicio.getDate() + 1);
+
+      const dayMovs = movimientos.filter(m => {
+        const f = new Date(m.fecha || m.createdAt);
+        return f >= diaInicio && f < diaFin;
+      });
       const ing = dayMovs.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
       const gas = dayMovs.filter(m => m.tipo !== 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
-      return { d, ingresos: ing || Math.round(Math.random() * 500000 + 100000), gastos: gas || Math.round(Math.random() * 300000 + 50000) };
+      return { d, ingresos: ing, gastos: gas };
     });
   };
   const chartData = buildChartData();
