@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -52,8 +54,20 @@ const Home = () => {
   const [vistaRemision, setVistaRemision] = useState('lista');
   const [remisionSeleccionada, setRemisionSeleccionada] = useState(null);
   const [vistaCliente, setVistaCliente] = useState('lista');
+  const [periodoEstadisticas, setPeriodoEstadisticas] = useState('semanal');
 
   const BASE_URL = config.API_URL;
+
+  // ── Resumen solo del día actual (para dashboard) ──────────────────────────
+  const resumenHoy = useMemo(() => {
+    const hoyStr = new Date().toDateString();
+    const movsHoy = movimientos.filter(m =>
+      new Date(m.fecha || m.createdAt).toDateString() === hoyStr
+    );
+    const ingresos = movsHoy.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
+    const gastos   = movsHoy.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
+    return { ingresos, gastos, saldo: ingresos - gastos };
+  }, [movimientos]);
 
   const getUserId = useCallback(() => {
     try {
@@ -221,16 +235,21 @@ const Home = () => {
       <div className="dash-top-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginBottom: '14px' }}>
         <div style={{ background: '#1a1a1a', borderRadius: '20px', padding: '24px', color: '#fff', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(46,125,50,0.15)' }} />
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: '700', color: '#9e9e9e', textTransform: 'uppercase', letterSpacing: '1px' }}>Balance Total</p>
-          <h2 style={{ margin: '0 0 16px', fontSize: '28px', fontWeight: '900', letterSpacing: '-1px' }}>{fmtShort(resumen.saldo)}</h2>
+          <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: '700', color: '#9e9e9e', textTransform: 'uppercase', letterSpacing: '1px' }}>Balance hoy</p>
+          <p style={{ margin: '0 0 4px', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
+            {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+          <h2 style={{ margin: '0 0 16px', fontSize: '28px', fontWeight: '900', letterSpacing: '-1px', color: resumenHoy.saldo >= 0 ? '#4CAF50' : '#ef5350' }}>
+            {fmtShort(resumenHoy.saldo)}
+          </h2>
           <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
             <div style={{ flex: 1 }}>
               <p style={{ margin: '0 0 2px', fontSize: '10px', color: '#9e9e9e', textTransform: 'uppercase' }}>Ingresos</p>
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: G3 }}>{fmtShort(resumen.ingresos)}</p>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: G3 }}>{fmtShort(resumenHoy.ingresos)}</p>
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ margin: '0 0 2px', fontSize: '10px', color: '#9e9e9e', textTransform: 'uppercase' }}>Gastos</p>
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#ef5350' }}>{fmtShort(resumen.gastos)}</p>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#ef5350' }}>{fmtShort(resumenHoy.gastos)}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -393,47 +412,283 @@ const Home = () => {
     </div>
   );
 
-  const renderEstadisticas = () => (
-    <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      <div className="dash-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
-        {[
-          { label: 'Total facturado', value: fmt(facturas.reduce((a, f) => a + (f.total || 0), 0)), sub: facturas.length + ' documentos', icon: FileText, color: G, bg: GL },
-          { label: 'Cotizaciones', value: fmt(cotizaciones.reduce((a, c) => a + (c.total || 0), 0)), sub: cotizaciones.length + ' propuestas', icon: ClipboardList, color: '#1565C0', bg: '#E3F2FD' },
-          { label: 'Remisiones', value: remisiones.length, sub: 'Entregas realizadas', icon: PackageCheck, color: '#E65100', bg: '#FFF3E0' },
-        ].map((s, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: '20px', padding: '22px', border: '1.5px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <s.icon size={22} color={s.color} />
+  const renderEstadisticas = () => {
+    const hoy = new Date();
+
+    // ── Rango de fechas según período ────────────────────────────────────────
+    const getRango = () => {
+      const inicio = new Date(hoy);
+      const fin    = new Date(hoy);
+      fin.setHours(23, 59, 59, 999);
+      if (periodoEstadisticas === 'diario') {
+        inicio.setHours(0, 0, 0, 0);
+      } else if (periodoEstadisticas === 'semanal') {
+        const diaSem = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
+        inicio.setDate(hoy.getDate() - diaSem);
+        inicio.setHours(0, 0, 0, 0);
+      } else {
+        inicio.setDate(1);
+        inicio.setHours(0, 0, 0, 0);
+      }
+      return { inicio, fin };
+    };
+
+    const { inicio, fin } = getRango();
+    const movsPeriodo = movimientos.filter(m => {
+      const f = new Date(m.fecha || m.createdAt);
+      return f >= inicio && f <= fin;
+    });
+
+    const ingPeriodo  = movsPeriodo.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
+    const gasPeriodo  = movsPeriodo.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
+    const saldoPeriodo = ingPeriodo - gasPeriodo;
+
+    // ── Datos del gráfico ────────────────────────────────────────────────────
+    const buildStatChart = () => {
+      if (periodoEstadisticas === 'diario') {
+        const horas = Array.from({ length: 24 }, (_, h) => {
+          const movsH = movsPeriodo.filter(m => new Date(m.fecha || m.createdAt).getHours() === h);
+          return {
+            d: h + 'h',
+            ingresos: movsH.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0),
+            gastos:   movsH.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0),
+          };
+        });
+        return horas.filter((_, h) => h >= 6 && h <= 22);
+      }
+      if (periodoEstadisticas === 'semanal') {
+        const dias  = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        return dias.map((d, i) => {
+          const diaInicio = new Date(inicio); diaInicio.setDate(inicio.getDate() + i);
+          const diaFin    = new Date(diaInicio); diaFin.setDate(diaInicio.getDate() + 1);
+          const movsD = movsPeriodo.filter(m => { const f = new Date(m.fecha || m.createdAt); return f >= diaInicio && f < diaFin; });
+          return { d, ingresos: movsD.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0), gastos: movsD.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0) };
+        });
+      }
+      // Mensual: por semanas del mes
+      const semanas = [];
+      const cursor = new Date(inicio);
+      let i = 1;
+      while (cursor <= fin) {
+        const semFin = new Date(cursor); semFin.setDate(cursor.getDate() + 6);
+        const movsS = movsPeriodo.filter(m => { const f = new Date(m.fecha || m.createdAt); return f >= cursor && f <= semFin; });
+        semanas.push({ d: 'Sem ' + i, ingresos: movsS.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0), gastos: movsS.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0) });
+        cursor.setDate(cursor.getDate() + 7); i++;
+      }
+      return semanas;
+    };
+
+    const statChartData = buildStatChart();
+
+    const labelPeriodo = periodoEstadisticas === 'diario'
+      ? hoy.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
+      : periodoEstadisticas === 'semanal'
+        ? 'Esta semana'
+        : hoy.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+
+    // ── Exportar PDF del período ─────────────────────────────────────────────
+    const exportarPDFStats = () => {
+      const doc = new jsPDF();
+      const fechaHoy = hoy.toLocaleDateString('es-CO');
+      doc.setFillColor(46, 125, 50);
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+      doc.text('EVA - Extracto de Balance', 14, 20);
+      doc.setTextColor(0, 0, 0); doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+      doc.text(`Período: ${labelPeriodo}`, 14, 40);
+      doc.text(`Exportado: ${fechaHoy}`, 14, 47);
+
+      // Resumen
+      doc.setFillColor(232, 245, 233); doc.roundedRect(14, 54, 55, 26, 3, 3, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(46, 125, 50); doc.setFontSize(9);
+      doc.text('INGRESOS', 41, 63, { align: 'center' }); doc.setFontSize(12);
+      doc.text(fmt(ingPeriodo), 41, 72, { align: 'center' });
+      doc.setFillColor(255, 235, 238); doc.roundedRect(74, 54, 55, 26, 3, 3, 'F');
+      doc.setTextColor(239, 83, 80); doc.setFontSize(9);
+      doc.text('GASTOS', 101, 63, { align: 'center' }); doc.setFontSize(12);
+      doc.text(fmt(gasPeriodo), 101, 72, { align: 'center' });
+      doc.setFillColor(26, 26, 26); doc.roundedRect(134, 54, 60, 26, 3, 3, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(9);
+      doc.text('BALANCE', 164, 63, { align: 'center' }); doc.setFontSize(12);
+      doc.setTextColor(saldoPeriodo >= 0 ? 76 : 239, saldoPeriodo >= 0 ? 175 : 83, saldoPeriodo >= 0 ? 80 : 80);
+      doc.text(fmt(saldoPeriodo), 164, 72, { align: 'center' });
+
+      // Tabla
+      let y = 92;
+      doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+      doc.text('Movimientos del período', 14, y); y += 7;
+      doc.setFillColor(46, 125, 50); doc.rect(14, y, 182, 7, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(8);
+      doc.text('Fecha', 16, y + 5); doc.text('Descripción', 46, y + 5);
+      doc.text('Categoría', 106, y + 5); doc.text('Tipo', 146, y + 5); doc.text('Monto', 172, y + 5);
+      y += 9;
+      movsPeriodo.forEach((m, i) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.setFillColor(i % 2 === 0 ? 249 : 255, i % 2 === 0 ? 249 : 255, i % 2 === 0 ? 249 : 255);
+        doc.rect(14, y - 3, 182, 7, 'F');
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(0, 0, 0);
+        doc.text(new Date(m.fecha).toLocaleDateString('es-CO'), 16, y + 1);
+        doc.text((m.descripcion || m.categoria || '').substring(0, 28), 46, y + 1);
+        doc.text((m.categoria || '').substring(0, 18), 106, y + 1);
+        doc.setTextColor(m.tipo === 'ingreso' ? 46 : 239, m.tipo === 'ingreso' ? 125 : 83, m.tipo === 'ingreso' ? 50 : 80);
+        doc.text(m.tipo, 146, y + 1);
+        doc.setTextColor(0, 0, 0);
+        doc.text((m.tipo === 'ingreso' ? '+' : '-') + fmtShort(m.monto), 172, y + 1);
+        y += 8;
+      });
+      doc.save(`EVA_Extracto_${periodoEstadisticas}_${fechaHoy.replace(/\//g, '-')}.pdf`);
+    };
+
+    // ── Exportar Excel del período ───────────────────────────────────────────
+    const exportarExcelStats = () => {
+      const fechaHoy = hoy.toLocaleDateString('es-CO');
+      const filas = movsPeriodo.map(m => ({
+        'Fecha': new Date(m.fecha).toLocaleDateString('es-CO'),
+        'Descripción': m.descripcion || m.categoria || '',
+        'Categoría': m.categoria || '',
+        'Tipo': m.tipo,
+        'Monto': m.monto || 0,
+        'Método de pago': m.metodoPago || '',
+      }));
+      const resumenFilas = [
+        { Concepto: 'Período', Valor: labelPeriodo },
+        { Concepto: 'Total Ingresos', Valor: ingPeriodo },
+        { Concepto: 'Total Gastos', Valor: gasPeriodo },
+        { Concepto: 'Balance', Valor: saldoPeriodo },
+        { Concepto: 'Fecha exportación', Valor: fechaHoy },
+      ];
+      const wb = XLSX.utils.book_new();
+      const wsRes = XLSX.utils.json_to_sheet(resumenFilas);
+      const wsMov = XLSX.utils.json_to_sheet(filas);
+      wsRes['!cols'] = [{ wch: 22 }, { wch: 20 }];
+      wsMov['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 20 }, { wch: 10 }, { wch: 14 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen');
+      XLSX.utils.book_append_sheet(wb, wsMov, 'Movimientos');
+      XLSX.writeFile(wb, `EVA_Extracto_${periodoEstadisticas}_${fechaHoy.replace(/\//g, '-')}.xlsx`);
+    };
+
+    return (
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+
+        {/* Tabs de período */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+          {[{ id: 'diario', label: '📅 Diario' }, { id: 'semanal', label: '📆 Semanal' }, { id: 'mensual', label: '🗓️ Mensual' }].map(p => (
+            <button key={p.id} type="button" onClick={() => setPeriodoEstadisticas(p.id)}
+              style={{ padding: '9px 20px', borderRadius: '12px', border: 'none', fontFamily: 'inherit', fontWeight: '800', fontSize: '13px', cursor: 'pointer',
+                background: periodoEstadisticas === p.id ? G : '#fff',
+                color: periodoEstadisticas === p.id ? '#fff' : '#9e9e9e',
+                border: periodoEstadisticas === p.id ? 'none' : '1.5px solid #f0f0f0'
+              }}>
+              {p.label}
+            </button>
+          ))}
+          <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#9e9e9e', alignSelf: 'center', fontWeight: '600' }}>
+            {labelPeriodo}
+          </span>
+        </div>
+
+        {/* Tarjetas resumen del período */}
+        <div className="dash-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
+          {[
+            { label: 'Ingresos', value: fmt(ingPeriodo), sub: movsPeriodo.filter(m => m.tipo === 'ingreso').length + ' movimientos', icon: TrendingUp, color: G, bg: GL },
+            { label: 'Gastos', value: fmt(gasPeriodo), sub: movsPeriodo.filter(m => m.tipo === 'gasto').length + ' movimientos', icon: ArrowDownCircle, color: '#ef5350', bg: '#FFEBEE' },
+            { label: 'Balance', value: fmt(saldoPeriodo), sub: saldoPeriodo >= 0 ? '✅ Positivo' : '⚠️ Negativo', icon: Wallet, color: saldoPeriodo >= 0 ? G : '#ef5350', bg: saldoPeriodo >= 0 ? GL : '#FFEBEE' },
+          ].map((s, i) => (
+            <div key={i} style={{ background: '#fff', borderRadius: '20px', padding: '22px', border: '1.5px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <s.icon size={22} color={s.color} />
+              </div>
+              <div>
+                <p style={{ margin: '0 0 2px', fontSize: '12px', color: '#9e9e9e' }}>{s.label}</p>
+                <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: '900', color: s.color }}>{s.value}</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#bdbdbd' }}>{s.sub}</p>
+              </div>
             </div>
+          ))}
+        </div>
+
+        {/* Gráfico del período */}
+        <div style={{ background: '#fff', borderRadius: '20px', padding: '26px', border: '1.5px solid #f0f0f0', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <p style={{ margin: '0 0 2px', fontSize: '12px', color: '#9e9e9e' }}>{s.label}</p>
-              <p style={{ margin: '0 0 2px', fontSize: '20px', fontWeight: '900', color: '#1a1a1a' }}>{s.value}</p>
-              <p style={{ margin: 0, fontSize: '11px', color: '#bdbdbd' }}>{s.sub}</p>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>Flujo de ingresos y gastos</h3>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9e9e9e' }}>{labelPeriodo}</p>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {[{ label: 'Ingresos', color: G }, { label: 'Gastos', color: '#ef5350' }].map((l, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: l.color }} />
+                  <span style={{ fontSize: '11px', color: '#9e9e9e' }}>{l.label}</span>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
-      <div style={{ background: '#fff', borderRadius: '20px', padding: '26px', border: '1.5px solid #f0f0f0' }}>
-        <h3 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>Rendimiento comercial</h3>
-        <p style={{ margin: '0 0 20px', fontSize: '12px', color: '#9e9e9e' }}>Comparativa de totales</p>
-        <div style={{ height: '280px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={[
-              { name: 'Facturas', valor: facturas.reduce((a, f) => a + (f.total || 0), 0) },
-              { name: 'Cotizaciones', valor: cotizaciones.reduce((a, c) => a + (c.total || 0), 0) },
-              { name: 'Remisiones', valor: remisiones.length * 100000 },
-            ]}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 13, fill: '#9e9e9e' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#9e9e9e' }} axisLine={false} tickLine={false} tickFormatter={fmtShort} width={60} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-              <Bar dataKey="valor" name="Total" fill={G} radius={[10, 10, 0, 0]} barSize={70} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ height: '260px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={statChartData} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" vertical={false} />
+                <XAxis dataKey="d" tick={{ fontSize: 11, fill: '#9e9e9e' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#9e9e9e' }} axisLine={false} tickLine={false} tickFormatter={fmtShort} width={55} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                <Bar dataKey="ingresos" name="Ingresos" fill={G} radius={[5, 5, 0, 0]} barSize={18} />
+                <Bar dataKey="gastos" name="Gastos" fill="#ef5350" radius={[5, 5, 0, 0]} barSize={18} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Botones de exportación */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+          <button onClick={exportarPDFStats} type="button"
+            style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: '#ef5350', color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
+            📄 Exportar Extracto PDF
+          </button>
+          <button onClick={exportarExcelStats} type="button"
+            style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
+            📊 Exportar Extracto Excel
+          </button>
+        </div>
+
+        {/* Lista movimientos del período */}
+        <div style={{ background: '#fff', borderRadius: '20px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
+          <div style={{ padding: '18px 20px', borderBottom: '1px solid #f5f5f5' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>
+              Movimientos · {movsPeriodo.length} registros
+            </h3>
+          </div>
+          {movsPeriodo.length === 0 ? (
+            <div style={{ padding: '48px 20px', textAlign: 'center' }}>
+              <BarChart3 size={32} color="#e0e0e0" />
+              <p style={{ margin: '10px 0 0', fontSize: '13px', color: '#bdbdbd' }}>Sin movimientos en este período</p>
+            </div>
+          ) : (
+            <div>
+              {movsPeriodo.slice().reverse().map((m, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 20px', borderBottom: i < movsPeriodo.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: m.tipo === 'ingreso' ? GL : '#FFEBEE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {m.tipo === 'ingreso' ? <ArrowUpCircle size={16} color={G} /> : <ArrowDownCircle size={16} color="#ef5350" />}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: '700', color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.descripcion || m.categoria || (m.tipo === 'ingreso' ? 'Ingreso' : 'Gasto')}
+                    </p>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#9e9e9e' }}>
+                      {new Date(m.fecha).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {m.metodoPago ? ' · ' + m.metodoPago : ''}
+                    </p>
+                  </div>
+                  <span style={{ fontSize: '14px', fontWeight: '900', color: m.tipo === 'ingreso' ? G : '#ef5350', flexShrink: 0 }}>
+                    {m.tipo === 'ingreso' ? '+' : '-'}{fmtShort(m.monto)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
