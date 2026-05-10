@@ -233,7 +233,10 @@ const Home = () => {
       </div>
 
       <div className="dash-top-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-        <div style={{ background: '#1a1a1a', borderRadius: '20px', padding: '24px', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+        <div onClick={() => setSeccionActiva('balance')}
+          style={{ background: '#1a1a1a', borderRadius: '20px', padding: '24px', color: '#fff', position: 'relative', overflow: 'hidden', cursor: 'pointer', transition: 'opacity 0.15s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
           <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(46,125,50,0.15)' }} />
           <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: '700', color: '#9e9e9e', textTransform: 'uppercase', letterSpacing: '1px' }}>Balance hoy</p>
           <p style={{ margin: '0 0 4px', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
@@ -253,11 +256,11 @@ const Home = () => {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button type="button" onClick={() => setSeccionActiva('ingresos')}
+            <button type="button" onClick={e => { e.stopPropagation(); setSeccionActiva('ingresos'); }}
               style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontFamily: 'inherit' }}>
               <Plus size={12} /> Ingreso
             </button>
-            <button type="button" onClick={() => setSeccionActiva('gastos')}
+            <button type="button" onClick={e => { e.stopPropagation(); setSeccionActiva('gastos'); }}
               style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: '#ef5350', color: '#fff', fontWeight: '800', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', fontFamily: 'inherit' }}>
               <Plus size={12} /> Gasto
             </button>
