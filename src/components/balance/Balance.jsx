@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { ArrowUpCircle, ArrowDownCircle, DollarSign, Calendar, Filter, FileText, Table, ChevronLeft, ChevronRight } from 'lucide-react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
@@ -10,6 +10,9 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
   const [filtro, setFiltro] = useState('todos');
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null); // null = todos
   const [semanaOffset, setSemanaOffset] = useState(0); // 0 = semana actual
+  const [hoverIngreso, setHoverIngreso] = useState(false);
+  const [hoverGasto, setHoverGasto]     = useState(false);
+  const movimientosRef = useRef(null);
 
   const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
   const fmtShort = (n) => {
@@ -55,6 +58,11 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
     const gastos = movsFiltradosPorFecha.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
     return { ingresos, gastos, saldo: ingresos - gastos };
   }, [movsFiltradosPorFecha]);
+
+  const irAFiltro = (tipo) => {
+    setFiltro(tipo);
+    setTimeout(() => movimientosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  };
 
   const tituloFecha = fechaSeleccionada
     ? fechaSeleccionada.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -236,22 +244,63 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
         )}
       </div>
 
-      {/* Tarjetas resumen */}
+      {/* Tarjetas resumen — clickeables */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-        <div style={{ background: GL, borderRadius: '16px', padding: '18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <ArrowUpCircle size={16} color={G} />
-            <span style={{ fontSize: '11px', fontWeight: '700', color: G, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ingresos</span>
+
+        {/* Ingresos */}
+        <div
+          onClick={() => irAFiltro(filtro === 'ingreso' ? 'todos' : 'ingreso')}
+          onMouseEnter={() => setHoverIngreso(true)}
+          onMouseLeave={() => setHoverIngreso(false)}
+          style={{
+            background: GL, borderRadius: '16px', padding: '18px',
+            cursor: 'pointer',
+            border: filtro === 'ingreso' ? `2px solid ${G}` : '2px solid transparent',
+            transform: hoverIngreso ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoverIngreso ? '0 6px 20px rgba(46,125,50,0.18)' : 'none',
+            transition: 'all 0.18s ease',
+            userSelect: 'none',
+          }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ArrowUpCircle size={16} color={G} />
+              <span style={{ fontSize: '11px', fontWeight: '700', color: G, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ingresos</span>
+            </div>
+            {filtro === 'ingreso' && (
+              <span style={{ fontSize: '9px', fontWeight: '700', color: '#fff', background: G, borderRadius: '20px', padding: '2px 7px' }}>Activo</span>
+            )}
           </div>
           <p style={{ margin: 0, fontSize: '22px', fontWeight: '900', color: G }}>{fmtShort(resumen.ingresos)}</p>
+          <p style={{ margin: '6px 0 0', fontSize: '10px', color: G, opacity: 0.7 }}>Toca para ver solo ingresos</p>
         </div>
-        <div style={{ background: '#FFEBEE', borderRadius: '16px', padding: '18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <ArrowDownCircle size={16} color="#ef5350" />
-            <span style={{ fontSize: '11px', fontWeight: '700', color: '#ef5350', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gastos</span>
+
+        {/* Gastos */}
+        <div
+          onClick={() => irAFiltro(filtro === 'gasto' ? 'todos' : 'gasto')}
+          onMouseEnter={() => setHoverGasto(true)}
+          onMouseLeave={() => setHoverGasto(false)}
+          style={{
+            background: '#FFEBEE', borderRadius: '16px', padding: '18px',
+            cursor: 'pointer',
+            border: filtro === 'gasto' ? '2px solid #ef5350' : '2px solid transparent',
+            transform: hoverGasto ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoverGasto ? '0 6px 20px rgba(239,83,80,0.18)' : 'none',
+            transition: 'all 0.18s ease',
+            userSelect: 'none',
+          }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ArrowDownCircle size={16} color="#ef5350" />
+              <span style={{ fontSize: '11px', fontWeight: '700', color: '#ef5350', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gastos</span>
+            </div>
+            {filtro === 'gasto' && (
+              <span style={{ fontSize: '9px', fontWeight: '700', color: '#fff', background: '#ef5350', borderRadius: '20px', padding: '2px 7px' }}>Activo</span>
+            )}
           </div>
           <p style={{ margin: 0, fontSize: '22px', fontWeight: '900', color: '#ef5350' }}>{fmtShort(resumen.gastos)}</p>
+          <p style={{ margin: '6px 0 0', fontSize: '10px', color: '#ef5350', opacity: 0.7 }}>Toca para ver solo gastos</p>
         </div>
+
       </div>
 
       {/* Balance total */}
@@ -273,7 +322,7 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
       </div>
 
       {/* Lista de movimientos */}
-      <div style={{ background: '#fff', borderRadius: '20px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
+      <div ref={movimientosRef} style={{ background: '#fff', borderRadius: '20px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a1a' }}>
             Movimientos {fechaSeleccionada ? `· ${fechaSeleccionada.getDate()}/${fechaSeleccionada.getMonth() + 1}` : ''}
