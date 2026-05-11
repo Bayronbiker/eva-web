@@ -9,12 +9,25 @@ import ProtectedRoute from './components/ProtectedRoute';
 import VerFactura from './components/facturas/VerFactura';
 import EditarFactura from './components/facturas/EditarFactura';
 
+// Páginas legales públicas (no requieren login)
+// Se enlazan desde la app Android y desde Play Store
+import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import Terms from './components/legal/Terms';
+import About from './components/legal/About';
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* ── PÁGINAS LEGALES PÚBLICAS ────────────────────────────────────
+            Sin ProtectedRoute: son accesibles desde la app Android y desde
+            el listing de Play Store sin necesidad de iniciar sesión. */}
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms"   element={<Terms />} />
+        <Route path="/about"   element={<About />} />
 
         {/* RUTA PRINCIPAL PROTEGIDA */}
         <Route path="/home" element={
