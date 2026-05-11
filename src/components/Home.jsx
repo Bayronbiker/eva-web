@@ -55,6 +55,7 @@ const Home = () => {
   const [remisionSeleccionada, setRemisionSeleccionada] = useState(null);
   const [vistaCliente, setVistaCliente] = useState('lista');
   const [periodoEstadisticas, setPeriodoEstadisticas] = useState('semanal');
+  const [offsetEstadisticas, setOffsetEstadisticas] = useState(0);
 
   const BASE_URL = config.API_URL;
 
@@ -416,7 +417,15 @@ const Home = () => {
   );
 
   const renderEstadisticas = () => {
+    // ── Fecha de referencia desplazada por el offset ─────────────────────────
     const hoy = new Date();
+    if (periodoEstadisticas === 'diario') {
+      hoy.setDate(hoy.getDate() - offsetEstadisticas);
+    } else if (periodoEstadisticas === 'semanal') {
+      hoy.setDate(hoy.getDate() - offsetEstadisticas * 7);
+    } else {
+      hoy.setMonth(hoy.getMonth() - offsetEstadisticas);
+    }
 
     // ── Rango de fechas según período ────────────────────────────────────────
     const getRango = () => {
@@ -429,9 +438,14 @@ const Home = () => {
         const diaSem = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
         inicio.setDate(hoy.getDate() - diaSem);
         inicio.setHours(0, 0, 0, 0);
+        fin.setDate(inicio.getDate() + 6);
+        fin.setHours(23, 59, 59, 999);
       } else {
         inicio.setDate(1);
         inicio.setHours(0, 0, 0, 0);
+        fin.setMonth(hoy.getMonth() + 1);
+        fin.setDate(0);
+        fin.setHours(23, 59, 59, 999);
       }
       return { inicio, fin };
     };
@@ -483,10 +497,11 @@ const Home = () => {
 
     const statChartData = buildStatChart();
 
+    const fmtCorta = (d) => d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
     const labelPeriodo = periodoEstadisticas === 'diario'
-      ? hoy.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
+      ? hoy.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
       : periodoEstadisticas === 'semanal'
-        ? 'Esta semana'
+        ? `${fmtCorta(inicio)} – ${fmtCorta(fin)} ${fin.getFullYear()}`
         : hoy.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
 
     // ── Exportar PDF del período ─────────────────────────────────────────────
@@ -574,11 +589,13 @@ const Home = () => {
     return (
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Tabs de período */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+        {/* Tabs de período + navegación de períodos pasados */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', alignItems: 'center' }}>
+          {/* Tabs */}
           {[{ id: 'diario', label: '📅 Diario' }, { id: 'semanal', label: '📆 Semanal' }, { id: 'mensual', label: '🗓️ Mensual' }].map(p => (
-            <button key={p.id} type="button" onClick={() => setPeriodoEstadisticas(p.id)}
-              style={{ padding: '9px 20px', borderRadius: '12px', border: 'none', fontFamily: 'inherit', fontWeight: '800', fontSize: '13px', cursor: 'pointer',
+            <button key={p.id} type="button"
+              onClick={() => { setPeriodoEstadisticas(p.id); setOffsetEstadisticas(0); }}
+              style={{ padding: '9px 20px', borderRadius: '12px', fontFamily: 'inherit', fontWeight: '800', fontSize: '13px', cursor: 'pointer',
                 background: periodoEstadisticas === p.id ? G : '#fff',
                 color: periodoEstadisticas === p.id ? '#fff' : '#9e9e9e',
                 border: periodoEstadisticas === p.id ? 'none' : '1.5px solid #f0f0f0'
@@ -586,9 +603,32 @@ const Home = () => {
               {p.label}
             </button>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#9e9e9e', alignSelf: 'center', fontWeight: '600' }}>
-            {labelPeriodo}
-          </span>
+
+          {/* Navegación ◀ período ▶ */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '8px', background: '#f7f7f7', borderRadius: '12px', padding: '4px 8px' }}>
+            <button type="button" onClick={() => setOffsetEstadisticas(o => o + 1)}
+              title="Período anterior"
+              style={{ width: '30px', height: '30px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: '#555', fontWeight: '700' }}>
+              ◀
+            </button>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#1a1a1a', minWidth: '160px', textAlign: 'center' }}>
+              {labelPeriodo}
+            </span>
+            <button type="button" onClick={() => setOffsetEstadisticas(o => Math.max(0, o - 1))}
+              title="Período siguiente"
+              disabled={offsetEstadisticas === 0}
+              style={{ width: '30px', height: '30px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: offsetEstadisticas === 0 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: offsetEstadisticas === 0 ? '#d0d0d0' : '#555', fontWeight: '700' }}>
+              ▶
+            </button>
+          </div>
+
+          {/* Botón "Hoy" cuando hay offset */}
+          {offsetEstadisticas > 0 && (
+            <button type="button" onClick={() => setOffsetEstadisticas(0)}
+              style={{ padding: '8px 14px', borderRadius: '10px', border: '1.5px solid ' + G, background: '#fff', color: G, fontWeight: '700', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Hoy
+            </button>
+          )}
         </div>
 
         {/* Tarjetas resumen del período */}
