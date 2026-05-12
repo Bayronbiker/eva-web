@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, User, Bell, Shield, Globe, Palette, Moon, Sun, ChevronRight, Save, Building } from 'lucide-react';
+import { ArrowLeft, User, Bell, Shield, Moon, Sun, ChevronRight, Save, Building, Palette } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const G = '#2E7D32';
 const GL = '#E8F5E9';
@@ -15,6 +16,7 @@ const ToggleSwitch = ({ value, onChange }) => (
 );
 
 const Configuracion = ({ onBack, userData }) => {
+  const { theme, toggleTheme } = useTheme();
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [nitEmpresa, setNitEmpresa] = useState('');
   const [telefonoEmpresa, setTelefonoEmpresa] = useState('');
@@ -109,6 +111,28 @@ const Configuracion = ({ onBack, userData }) => {
             <ToggleSwitch value={item.value} onChange={item.set} />
           </div>
         ))}
+      </div>
+
+      {/* Apariencia */}
+      <div style={sectionStyle}>
+        <div style={{ background: '#F5F5F5', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Palette size={15} color="#757575" />
+          <span style={{ fontSize: '11px', fontWeight: '700', color: '#757575', letterSpacing: '0.8px', textTransform: 'uppercase' }}>Apariencia</span>
+        </div>
+        <div style={{ ...rowStyle, borderBottom: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: theme === 'dark' ? '#1A211D' : '#F0F4F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {theme === 'dark' ? <Moon size={16} color={G} /> : <Sun size={16} color={G} />}
+            </div>
+            <div>
+              <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: '700', color: '#1a1a1a' }}>
+                {theme === 'dark' ? 'Modo oscuro activo' : 'Modo claro activo'}
+              </p>
+              <p style={{ margin: 0, fontSize: '11px', color: '#9e9e9e' }}>Cambia la apariencia de toda la aplicación</p>
+            </div>
+          </div>
+          <ToggleSwitch value={theme === 'dark'} onChange={toggleTheme} />
+        </div>
       </div>
 
       {/* Seguridad */}

@@ -42,16 +42,47 @@
   --eva-radius-md: 1rem;          /* 16px */
 }
 
-/* ========== MODO OSCURO (Opcional) ========== */
+/* ========== MODO OSCURO — Paleta premium EVA ========== */
 [data-theme="dark"] {
-  --eva-bg: #0F172A;
-  --eva-bg-card: #1E293B;
-  --eva-border: #334155;
-  --eva-text: #F8FAFC;
-  --eva-text-muted: #94A3B8;
-  --eva-sidebar: #064E3B;
-  --eva-sidebar-active: rgba(255, 255, 255, 0.1);
+  /* Fondos y superficies */
+  --eva-bg:             #0D1117;   /* GitHub-like deep dark */
+  --eva-bg-card:        #161B22;   /* Superficie elevada */
+  --eva-bg-surface:     #21262D;   /* Superficie secundaria */
+  --eva-bg-hover:       #262C36;   /* Hover sutil */
+
+  /* Bordes */
+  --eva-border:         #30363D;
+  --eva-border-subtle:  #21262D;
+
+  /* Texto */
+  --eva-text:           #E6EDF3;
+  --eva-text-muted:     #7D8590;
+  --eva-text-subtle:    #484F58;
+
+  /* Header */
+  --eva-header-bg:      #161B22;
+  --eva-header-border:  #30363D;
+
+  /* Sidebar (siempre oscuro, pero más tintado en dark) */
+  --eva-sidebar:        #0D1117;
+  --eva-sidebar-border: #21262D;
+  --eva-sidebar-active: #2E7D32;
   --eva-sidebar-active-text: #FFFFFF;
+
+  /* Verde principal (más brillante en oscuro para contraste) */
+  --eva-primary:        #3FB950;
+  --eva-primary-hover:  #2EA043;
+  --eva-primary-light:  #0D2818;
+
+  /* Colores semánticos */
+  --eva-success:        #3FB950;
+  --eva-danger:         #F85149;
+  --eva-danger-light:   #3D1A1A;
+  --eva-warning:        #D29922;
+  --eva-warning-light:  #3D2E0A;
+
+  /* Sombra adaptada al oscuro */
+  --eva-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
 /* ========== ESTILOS BASE ========== */
@@ -125,6 +156,23 @@ html, body, #root {
   box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
 }
 
+/* Transición suave al cambiar tema */
+*, *::before, *::after {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
+}
+
+/* Inputs en modo oscuro */
+[data-theme="dark"] .eva-input {
+  background: var(--eva-bg-surface);
+  border-color: var(--eva-border);
+  color: var(--eva-text);
+}
+
+[data-theme="dark"] .eva-input:focus {
+  border-color: var(--eva-primary);
+  box-shadow: 0 0 0 4px rgba(63, 185, 80, 0.12);
+}
+
 /* Barra de desplazamiento personalizada */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -135,13 +183,19 @@ html, body, #root {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--eva-border);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--eva-primary);
 }
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--eva-border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--eva-primary); }
 
 /* Animaciones suaves para cambios de sección */
 .section-fade-enter {
