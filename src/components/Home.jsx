@@ -8,7 +8,7 @@ import {
   PackageCheck, Users, BarChart3, Bell, Settings, ChevronRight,
   Contact, HelpCircle, Phone, ExternalLink, Menu, X, Plus,
   Activity, Shield, ArrowUpCircle, ArrowDownCircle, Package,
-  Wallet, TrendingUp, Sun, Moon
+  Wallet, TrendingUp, Sun, Moon, Truck
 } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import CrearFactura from './facturas/CrearFactura';
@@ -23,6 +23,8 @@ import CrearGasto from './movimientos/CrearGasto';
 import CrearIngreso from './movimientos/CrearIngreso';
 import Inventario from './inventario/Inventario';
 import Balance from './balance/Balance';
+import BalanceTabs from './balance/BalanceTabs';
+import Proveedores from './proveedores/Proveedores';
 import Configuracion from './configuracion/Configuracion';
 import Notificaciones from './notificaciones/Notificaciones';
 import config from '../config';
@@ -233,6 +235,7 @@ const Home = () => {
     { id: 'clientes', label: 'Clientes', icon: Users },
     { id: 'inventario', label: 'Inventario', icon: Package },
     { id: 'balance', label: 'Balance', icon: Wallet },
+    { id: 'proveedores', label: 'Proveedores', icon: Truck },
     { id: 'estadisticas', label: 'Estadisticas', icon: BarChart3 },
     { id: 'contactos', label: 'Contactos', icon: Contact },
     { id: 'ayuda', label: 'Ayuda', icon: HelpCircle },
@@ -908,7 +911,10 @@ const Home = () => {
               <CrearGasto onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
 
             ) : seccionActiva === 'balance' ? (
-              <Balance movimientos={movimientos} resumen={resumen} />
+              <BalanceTabs movimientos={movimientos} resumen={resumen} clientes={clientes} onNavigate={setSeccionActiva} />
+
+            ) : seccionActiva === 'proveedores' ? (
+              <Proveedores onBack={() => setSeccionActiva('balance')} />
 
             ) : seccionActiva === 'inventario' ? (
               <Inventario />
