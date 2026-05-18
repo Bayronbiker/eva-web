@@ -95,9 +95,11 @@ export default function Proveedores({ onBack }) {
     return (
       <CrearProveedor
         proveedorAEditar={proveedorSeleccionado || null}
+        proveedores={proveedores}
         onBack={irALista}
         onSave={handleGuardar}
         onDelete={handleEliminar}
+        onRecargar={cargar}
       />
     );
   }
