@@ -4,7 +4,7 @@ import ListaProveedores from './ListaProveedores';
 import CrearProveedor from './CrearProveedor';
 import config from '../../config';
 
-const BASE_URL = config.apiUrl;
+const BASE_URL = config.API_URL;
 const axiosAuth = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 
 export default function Proveedores({ onBack }) {

@@ -22,7 +22,7 @@ const PALETA_OSCURA = {
   morado: '#BC8CFF', moradoBg: '#1F0D35', hover: '#262C36',
 };
 
-const BASE_URL = config.apiUrl;
+const BASE_URL = config.API_URL;
 const axiosAuth = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 
 const fmtCOP = (val) => {
