@@ -72,7 +72,6 @@ export default function EscanearFactura({ onResultado, label = 'Escanear factura
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         style={{ display: 'none' }}
         onChange={handleArchivo}
       />
