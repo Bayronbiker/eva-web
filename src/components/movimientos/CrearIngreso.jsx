@@ -1,39 +1,50 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Save, Calendar, CreditCard, Smartphone, Banknote, ArrowLeftRight, MoreHorizontal, Building } from 'lucide-react';
-
-const G = '#2E7D32';
-const GL = '#E8F5E9';
+import { ArrowLeft, Save, Calendar, CreditCard, Smartphone, Banknote, ArrowLeftRight, MoreHorizontal, Building, Loader2 } from 'lucide-react';
 
 const CATEGORIAS_INGRESO = ['Venta de productos', 'Prestacion de servicios', 'Factura cobrada', 'Anticipo', 'Comision', 'Devolucion', 'Otros'];
-const CLIENTES_TIPO = ['Cliente empresa', 'Cliente persona natural', 'Pago en efectivo', 'Otro'];
-const METODOS_PAGO = [
-  { id: 'efectivo', label: 'Efectivo', icon: Banknote },
-  { id: 'tarjeta', label: 'Tarjeta', icon: CreditCard },
-  { id: 'transferencia', label: 'Transferencia', icon: ArrowLeftRight },
-  { id: 'nequi', label: 'Nequi', icon: Smartphone },
-  { id: 'daviplata', label: 'Daviplata', icon: Building },
-  { id: 'otro', label: 'Otro', icon: MoreHorizontal },
+const CLIENTES_TIPO      = ['Cliente empresa', 'Cliente persona natural', 'Pago en efectivo', 'Otro'];
+const METODOS_PAGO       = [
+  { id: 'efectivo',      label: 'Efectivo',      icon: Banknote       },
+  { id: 'tarjeta',       label: 'Tarjeta',        icon: CreditCard     },
+  { id: 'transferencia', label: 'Transferencia',  icon: ArrowLeftRight },
+  { id: 'nequi',         label: 'Nequi',          icon: Smartphone     },
+  { id: 'daviplata',     label: 'Daviplata',      icon: Building       },
+  { id: 'otro',          label: 'Otro',           icon: MoreHorizontal },
 ];
 
-const inputStyle = { width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1.5px solid #e0e0e0', fontSize: '15px', fontFamily: 'inherit', background: '#fff', outline: 'none', boxSizing: 'border-box' };
-const labelStyle = { fontSize: '11px', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase', color: '#757575', marginBottom: '6px', display: 'block' };
+const inputStyle   = { width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1.5px solid #e0e0e0', fontSize: '15px', fontFamily: 'inherit', background: '#fff', outline: 'none', boxSizing: 'border-box' };
+const labelStyle   = { fontSize: '11px', fontWeight: '700', letterSpacing: '0.8px', textTransform: 'uppercase', color: '#757575', marginBottom: '6px', display: 'block' };
 const sectionStyle = { background: '#fff', borderRadius: '16px', border: '1.5px solid #f0f0f0', marginBottom: '14px', overflow: 'hidden' };
+
+const G  = '#2E7D32';
+const GL = '#E8F5E9';
 
 const CrearIngreso = ({ onBack, onSave }) => {
   const hoy = new Date().toISOString().split('T')[0];
-  const [fecha, setFecha] = useState(hoy);
-  const [categoria, setCategoria] = useState('');
-  const [valor, setValor] = useState('');
-  const [cliente, setCliente] = useState('');
-  const [metodoPago, setMetodoPago] = useState('');
+  const [fecha,       setFecha]       = useState(hoy);
+  const [categoria,   setCategoria]   = useState('');
+  const [valor,       setValor]       = useState('');
+  const [cliente,     setCliente]     = useState('');
+  const [metodoPago,  setMetodoPago]  = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [guardando,   setGuardando]   = useState(false); // ← FIX: estado de carga
 
   const isValido = fecha && categoria && valor && metodoPago;
 
-  const handleGuardar = () => {
-    if (!isValido) { alert('Completa los campos obligatorios.'); return; }
-    onSave({ fecha, categoria, monto: Number(valor), proveedor: cliente, metodoPago, descripcion, tipo: 'ingreso' });
+  /* ── FIX: función async + await onSave + estado guardando ─────────────── */
+  const handleGuardar = async () => {
+    if (!isValido || guardando) return;
+    setGuardando(true);
+    try {
+      await onSave({ fecha, categoria, monto: Number(valor), proveedor: cliente, metodoPago, descripcion, tipo: 'ingreso' });
+    } catch {
+      // el padre (Home.jsx) ya maneja el error con alert
+    } finally {
+      setGuardando(false);
+    }
   };
+
+  const btnActivo = isValido && !guardando;
 
   return (
     <div style={{ maxWidth: '680px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -107,10 +118,16 @@ const CrearIngreso = ({ onBack, onSave }) => {
           style={{ ...inputStyle, resize: 'none', lineHeight: '1.6' }} />
       </div>
 
-      <button type="button" onClick={handleGuardar}
-        style={{ width: '100%', padding: '16px', borderRadius: '14px', border: 'none', background: isValido ? G : '#e0e0e0', color: '#fff', fontWeight: '800', fontSize: '15px', cursor: isValido ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
-        <Save size={20} /> Registrar ingreso
+      {/* ── FIX: botón deshabilitado mientras guarda ─────────────────────── */}
+      <button type="button" onClick={handleGuardar} disabled={!btnActivo}
+        style={{ width: '100%', padding: '16px', borderRadius: '14px', border: 'none', background: btnActivo ? G : '#e0e0e0', color: '#fff', fontWeight: '800', fontSize: '15px', cursor: btnActivo ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit', transition: 'background 0.2s' }}>
+        {guardando
+          ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Guardando...</>
+          : <><Save size={20} /> Registrar ingreso</>
+        }
       </button>
+
+      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
     </div>
   );
 };

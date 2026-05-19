@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 const G = '#2E7D32';
 const GL = '#E8F5E9';
 
-const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingresos: 0, gastos: 0 } }) => {
+const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingresos: 0, gastos: 0 }, onVerLista }) => {
   const [filtro, setFiltro] = useState('todos');
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null); // null = todos
   const [semanaOffset, setSemanaOffset] = useState(0); // 0 = semana actual
@@ -60,8 +60,13 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
   }, [movsFiltradosPorFecha]);
 
   const irAFiltro = (tipo) => {
-    setFiltro(tipo);
-    setTimeout(() => movimientosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    if (onVerLista) {
+      // Navegar a lista completa del tipo seleccionado
+      onVerLista(tipo);
+    } else {
+      setFiltro(tipo);
+      setTimeout(() => movimientosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    }
   };
 
   const tituloFecha = fechaSeleccionada

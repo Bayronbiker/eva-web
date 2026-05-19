@@ -17,7 +17,7 @@ const TABS = [
   { id: 'situacionFinanciera', label: 'Situación Financiera' },
 ];
 
-export default function BalanceTabs({ movimientos, resumen, clientes, onNavigate }) {
+export default function BalanceTabs({ movimientos, resumen, clientes, onNavigate, onVerLista }) {
   const { theme } = useTheme();
   const p = theme === 'dark' ? PALETA_OSCURA : PALETA_CLARA;
   const [tabActiva, setTabActiva] = useState('cajaMenor');
@@ -56,7 +56,7 @@ export default function BalanceTabs({ movimientos, resumen, clientes, onNavigate
 
       {/* ── Contenido ── */}
       {tabActiva === 'cajaMenor' ? (
-        <Balance movimientos={movimientos} resumen={resumen} />
+        <Balance movimientos={movimientos} resumen={resumen} onVerLista={onVerLista} />
       ) : (
         <SituacionFinanciera movimientos={movimientos} onNavigate={onNavigate} />
       )}

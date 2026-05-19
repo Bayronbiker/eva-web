@@ -21,6 +21,7 @@ import CrearCliente from './clientes/CrearCliente';
 import ListaClientes from './clientes/ListaClientes';
 import CrearGasto from './movimientos/CrearGasto';
 import CrearIngreso from './movimientos/CrearIngreso';
+import ListaMovimientos from './movimientos/ListaMovimientos';
 import Inventario from './inventario/Inventario';
 import Balance from './balance/Balance';
 import BalanceTabs from './balance/BalanceTabs';
@@ -120,8 +121,9 @@ const Home = () => {
   const [vistaRemision, setVistaRemision] = useState('lista');
   const [remisionSeleccionada, setRemisionSeleccionada] = useState(null);
   const [vistaCliente, setVistaCliente] = useState('lista');
-  const [periodoEstadisticas, setPeriodoEstadisticas] = useState('semanal');
-  const [offsetEstadisticas, setOffsetEstadisticas] = useState(0);
+  const [periodoEstadisticas,  setPeriodoEstadisticas]  = useState('semanal');
+  const [offsetEstadisticas,   setOffsetEstadisticas]   = useState(0);
+  const [tipoListaMovimientos, setTipoListaMovimientos] = useState('ingreso'); // para ListaMovimientos
 
   const BASE_URL = config.API_URL;
 
@@ -910,8 +912,21 @@ const Home = () => {
             ) : seccionActiva === 'gastos' ? (
               <CrearGasto onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
 
+            ) : seccionActiva === 'lista-movimientos' ? (
+              <ListaMovimientos
+                tipo={tipoListaMovimientos}
+                movimientos={movimientos}
+                onBack={() => setSeccionActiva('balance')}
+              />
+
             ) : seccionActiva === 'balance' ? (
-              <BalanceTabs movimientos={movimientos} resumen={resumen} clientes={clientes} onNavigate={setSeccionActiva} />
+              <BalanceTabs
+                movimientos={movimientos}
+                resumen={resumen}
+                clientes={clientes}
+                onNavigate={setSeccionActiva}
+                onVerLista={(tipo) => { setTipoListaMovimientos(tipo); setSeccionActiva('lista-movimientos'); }}
+              />
 
             ) : seccionActiva === 'proveedores' ? (
               <Proveedores onBack={() => setSeccionActiva('balance')} />
