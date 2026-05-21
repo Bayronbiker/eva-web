@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ import {
   PackageCheck, Users, BarChart3, Bell, Settings, ChevronRight,
   Contact, HelpCircle, Phone, ExternalLink, Menu, X, Plus,
   Activity, Shield, ArrowUpCircle, ArrowDownCircle, Package,
-  Wallet, TrendingUp, Sun, Moon, Truck
+  Wallet, TrendingUp, Sun, Moon, Truck, MessageCircle, Send
 } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import CrearFactura from './facturas/CrearFactura';
@@ -124,6 +124,13 @@ const Home = () => {
   const [periodoEstadisticas,  setPeriodoEstadisticas]  = useState('semanal');
   const [offsetEstadisticas,   setOffsetEstadisticas]   = useState(0);
   const [tipoListaMovimientos, setTipoListaMovimientos] = useState('ingreso'); // para ListaMovimientos
+
+  // ── Chat EVA ─────────────────────────────────────────────────────────────────
+  const [chatAbierto, setChatAbierto]     = useState(false);
+  const [chatMensajes, setChatMensajes]   = useState([]);
+  const [chatInput, setChatInput]         = useState('');
+  const [chatCargando, setChatCargando]   = useState(false);
+  const chatFinRef                         = useRef(null);
 
   const BASE_URL = config.API_URL;
 
@@ -265,6 +272,40 @@ const Home = () => {
       setSeccionActiva('balance');
     } catch (e) { alert('Error al registrar: ' + (e.response?.data?.message || e.message)); }
   };
+
+  // ── Lógica del chat con IA ────────────────────────────────────────────────────
+const enviarMensaje = async () => {
+  // No hace nada si el campo está vacío o si ya está cargando
+  const texto = chatInput.trim();
+  if (!texto || chatCargando) return;
+
+  // Construimos el nuevo historial con el mensaje del usuario
+  const nuevosMensajes = [...chatMensajes, { role: 'user', content: texto }];
+
+  // Actualizamos el estado: mostramos el mensaje y limpiamos el input
+  setChatMensajes(nuevosMensajes);
+  setChatInput('');
+  setChatCargando(true);
+
+  try {
+    // Llamamos al backend. axiosAuth() añade el token JWT automáticamente
+    const { data } = await axios.post(BASE_URL + '/chat', { messages: nuevosMensajes }, axiosAuth());
+
+    // Añadimos la respuesta de la IA al historial
+    setChatMensajes(prev => [...prev, { role: 'assistant', content: data.reply }]);
+  } catch {
+    // Si falla, mostramos un mensaje de error como si fuera la IA quien responde
+    setChatMensajes(prev => [...prev, { role: 'assistant', content: 'Ocurrió un error al conectar. Intenta de nuevo.' }]);
+  } finally {
+    // Siempre quitamos el estado de carga, sin importar si funcionó o no
+    setChatCargando(false);
+  }
+};
+
+// Cada vez que chatMensajes cambia, hacemos scroll al final automáticamente
+useEffect(() => {
+  chatFinRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [chatMensajes]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -807,6 +848,7 @@ const Home = () => {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         .eva-sidebar { width: 250px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; transition: transform 0.3s ease; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         @media (max-width: 768px) {
           .eva-sidebar { position: fixed !important; top: 0 !important; left: 0 !important; height: 100% !important; width: 280px !important; z-index: 400 !important; transform: translateX(-100%) !important; box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
           .eva-sidebar.open { transform: translateX(0) !important; }
@@ -1116,6 +1158,163 @@ const Home = () => {
             )}
           </main>
         </div>
+      </div>
+      {/* ── Asistente Chat EVA (widget flotante) ────────────────────────────── */}
+      <div style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: '12px',
+      }}>
+
+        {/* Panel de conversación — solo visible cuando chatAbierto = true */}
+        {chatAbierto && (
+          <div style={{
+            width: '360px',
+            height: '480px',
+            background: p.card,
+            borderRadius: '24px',
+            border: '1.5px solid ' + p.borde,
+            boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}>
+
+            {/* Cabecera verde */}
+            <div style={{ background: G, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MessageCircle size={18} color="#fff" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#fff' }}>Asistente EVA</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.75)' }}>Con IA · Siempre disponible</p>
+              </div>
+              <button onClick={() => setChatAbierto(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '8px', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <X size={14} color="#fff" />
+              </button>
+            </div>
+
+            {/* Área de mensajes */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+              {/* Estado vacío — bienvenida */}
+              {chatMensajes.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: GL, margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <MessageCircle size={24} color={G} />
+                  </div>
+                  <p style={{ margin: '0 0 6px', fontSize: '14px', fontWeight: '800', color: p.texto }}>¡Hola! Soy EVA</p>
+                  <p style={{ margin: 0, fontSize: '12px', color: p.textoMuted, lineHeight: '1.6' }}>Tu asistente contable. Pregúntame sobre facturas, clientes, inventario o cualquier duda de tu negocio.</p>
+                </div>
+              )}
+
+              {/* Lista de mensajes */}
+              {chatMensajes.map((msg, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '82%',
+                    padding: '10px 14px',
+                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    background: msg.role === 'user' ? G : p.surface,
+                    color: msg.role === 'user' ? '#fff' : p.texto,
+                    fontSize: '13px',
+                    lineHeight: '1.65',
+                    border: msg.role === 'user' ? 'none' : '1px solid ' + p.borde,
+                    whiteSpace: 'pre-wrap',
+                  }}>
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+
+              {/* Animación "está escribiendo..." */}
+              {chatCargando && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <div style={{ padding: '12px 16px', borderRadius: '18px 18px 18px 4px', background: p.surface, border: '1px solid ' + p.borde, display: 'flex', gap: '5px', alignItems: 'center' }}>
+                    {[0, 200, 400].map(delay => (
+                      <span key={delay} style={{ width: '6px', height: '6px', borderRadius: '50%', background: p.textoMuted, display: 'inline-block', animation: `bounce 1s infinite ${delay}ms` }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Ancla invisible para el auto-scroll */}
+              <div ref={chatFinRef} />
+            </div>
+
+            {/* Área de input */}
+            <div style={{ padding: '12px 16px', borderTop: '1.5px solid ' + p.borde, display: 'flex', gap: '8px', background: p.card }}>
+              <input
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensaje(); } }}
+                placeholder="Escribe tu pregunta..."
+                disabled={chatCargando}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  border: '1.5px solid ' + p.bordeInput,
+                  background: p.surface,
+                  color: p.texto,
+                  fontSize: '13px',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                }}
+              />
+              <button
+                onClick={enviarMensaje}
+                disabled={chatCargando || !chatInput.trim()}
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: chatInput.trim() && !chatCargando ? G : p.borde,
+                  color: '#fff',
+                  cursor: chatInput.trim() && !chatCargando ? 'pointer' : 'default',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  transition: 'background 0.2s',
+                }}>
+                <Send size={16} />
+              </button>
+            </div>
+
+          </div>
+        )}
+
+        {/* Botón flotante circular */}
+        <button
+          onClick={() => setChatAbierto(prev => !prev)}
+          title="Asistente EVA"
+          style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '18px',
+            border: 'none',
+            background: G,
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 24px rgba(46,125,50,0.4)',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(46,125,50,0.55)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(46,125,50,0.4)'; }}>
+          {chatAbierto ? <X size={22} /> : <MessageCircle size={22} />}
+        </button>
+
       </div>
     </>
   );
