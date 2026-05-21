@@ -68,8 +68,8 @@ const PALETA_OSCURA = {
   surface:     '#21262D',
   header:      '#161B22',
   headerBorder:'#30363D',
-  sidebar:     '#0D1117',
-  sidebarBorder:'#21262D',
+  sidebar:     '#0B1610',   // Verde noche EVA — más oscuro que el bg pero con tinte verde
+  sidebarBorder:'#1A2E1E', // Borde verde sutil para reforzar la separación
   texto:       '#E6EDF3',
   textoMuted:  '#7D8590',
   textoSutil:  '#484F58',

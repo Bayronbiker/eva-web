@@ -63,9 +63,9 @@
   --eva-header-bg:      #161B22;
   --eva-header-border:  #30363D;
 
-  /* Sidebar (siempre oscuro, pero más tintado en dark) */
-  --eva-sidebar:        #0D1117;
-  --eva-sidebar-border: #21262D;
+  /* Sidebar (verde noche EVA — más oscuro que el bg pero con tinte verde de marca) */
+  --eva-sidebar:        #0B1610;
+  --eva-sidebar-border: #1A2E1E;
   --eva-sidebar-active: #2E7D32;
   --eva-sidebar-active-text: #FFFFFF;
 
