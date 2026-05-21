@@ -34,61 +34,61 @@ import { useTheme } from '../context/ThemeContext';
 
 // ── Paleta de colores — idéntica lógica a EvaPalette.kt de Android ────────────
 const PALETA_CLARA = {
-  bg:          '#F8FAFB',
-  card:        '#FFFFFF',
-  surface:     '#F9FAFB',
-  header:      '#FFFFFF',
-  headerBorder:'#f0f0f0',
-  sidebar:     '#1a1a1a',
-  sidebarBorder:'rgba(255,255,255,0.06)',
-  texto:       '#1a1a1a',
-  textoMuted:  '#9e9e9e',
-  textoSutil:  '#bdbdbd',
-  borde:       '#f0f0f0',
-  bordeInput:  '#e0e0e0',
-  hover:       '#F5F5F5',
-  chartGrid:   '#f5f5f5',
-  tooltip:     '#1a1a1a',
+  bg: '#F8FAFB',
+  card: '#FFFFFF',
+  surface: '#F9FAFB',
+  header: '#FFFFFF',
+  headerBorder: '#f0f0f0',
+  sidebar: '#1a1a1a',
+  sidebarBorder: 'rgba(255,255,255,0.06)',
+  texto: '#1a1a1a',
+  textoMuted: '#9e9e9e',
+  textoSutil: '#bdbdbd',
+  borde: '#f0f0f0',
+  bordeInput: '#e0e0e0',
+  hover: '#F5F5F5',
+  chartGrid: '#f5f5f5',
+  tooltip: '#1a1a1a',
   tooltipText: '#9e9e9e',
-  verde:       '#2E7D32',
-  verdeHover:  '#1B5E20',
-  verdeVivo:   '#4CAF50',
-  verdeBg:     '#E8F5E9',
-  rojo:        '#ef5350',
-  rojoBg:      '#FFEBEE',
-  azul:        '#1565C0',
-  azulBg:      '#E3F2FD',
-  morado:      '#6A1B9A',
-  moradoBg:    '#F3E5F5',
+  verde: '#2E7D32',
+  verdeHover: '#1B5E20',
+  verdeVivo: '#4CAF50',
+  verdeBg: '#E8F5E9',
+  rojo: '#ef5350',
+  rojoBg: '#FFEBEE',
+  azul: '#1565C0',
+  azulBg: '#E3F2FD',
+  morado: '#6A1B9A',
+  moradoBg: '#F3E5F5',
 };
 
 const PALETA_OSCURA = {
-  bg:          '#0D1117',
-  card:        '#161B22',
-  surface:     '#21262D',
-  header:      '#161B22',
-  headerBorder:'#30363D',
-  sidebar:     '#0B1610',   // Verde noche EVA — más oscuro que el bg pero con tinte verde
-  sidebarBorder:'#1A2E1E', // Borde verde sutil para reforzar la separación
-  texto:       '#E6EDF3',
-  textoMuted:  '#7D8590',
-  textoSutil:  '#484F58',
-  borde:       '#30363D',
-  bordeInput:  '#30363D',
-  hover:       '#262C36',
-  chartGrid:   '#21262D',
-  tooltip:     '#161B22',
+  bg: '#0D1117',
+  card: '#161B22',
+  surface: '#21262D',
+  header: '#161B22',
+  headerBorder: '#30363D',
+  sidebar: '#0B1610',   // Verde noche EVA — más oscuro que el bg pero con tinte verde
+  sidebarBorder: '#1A2E1E', // Borde verde sutil para reforzar la separación
+  texto: '#E6EDF3',
+  textoMuted: '#7D8590',
+  textoSutil: '#484F58',
+  borde: '#30363D',
+  bordeInput: '#30363D',
+  hover: '#262C36',
+  chartGrid: '#21262D',
+  tooltip: '#161B22',
   tooltipText: '#7D8590',
-  verde:       '#3FB950',
-  verdeHover:  '#2EA043',
-  verdeVivo:   '#56D364',
-  verdeBg:     '#0D2818',
-  rojo:        '#F85149',
-  rojoBg:      '#3D1A1A',
-  azul:        '#58A6FF',
-  azulBg:      '#0D1F35',
-  morado:      '#BC8CFF',
-  moradoBg:    '#1F0D35',
+  verde: '#3FB950',
+  verdeHover: '#2EA043',
+  verdeVivo: '#56D364',
+  verdeBg: '#0D2818',
+  rojo: '#F85149',
+  rojoBg: '#3D1A1A',
+  azul: '#58A6FF',
+  azulBg: '#0D1F35',
+  morado: '#BC8CFF',
+  moradoBg: '#1F0D35',
 };
 
 const Home = () => {
@@ -97,7 +97,7 @@ const Home = () => {
   const p = theme === 'dark' ? PALETA_OSCURA : PALETA_CLARA;
 
   // Alias de colores para compatibilidad con código existente
-  const G  = p.verde;
+  const G = p.verde;
   const G2 = p.verdeHover;
   const G3 = p.verdeVivo;
   const GL = p.verdeBg;
@@ -121,16 +121,16 @@ const Home = () => {
   const [vistaRemision, setVistaRemision] = useState('lista');
   const [remisionSeleccionada, setRemisionSeleccionada] = useState(null);
   const [vistaCliente, setVistaCliente] = useState('lista');
-  const [periodoEstadisticas,  setPeriodoEstadisticas]  = useState('semanal');
-  const [offsetEstadisticas,   setOffsetEstadisticas]   = useState(0);
+  const [periodoEstadisticas, setPeriodoEstadisticas] = useState('semanal');
+  const [offsetEstadisticas, setOffsetEstadisticas] = useState(0);
   const [tipoListaMovimientos, setTipoListaMovimientos] = useState('ingreso'); // para ListaMovimientos
 
   // ── Chat EVA ─────────────────────────────────────────────────────────────────
-  const [chatAbierto, setChatAbierto]     = useState(false);
-  const [chatMensajes, setChatMensajes]   = useState([]);
-  const [chatInput, setChatInput]         = useState('');
-  const [chatCargando, setChatCargando]   = useState(false);
-  const chatFinRef                         = useRef(null);
+  const [chatAbierto, setChatAbierto] = useState(false);
+  const [chatMensajes, setChatMensajes] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatCargando, setChatCargando] = useState(false);
+  const chatFinRef = useRef(null);
 
   const BASE_URL = config.API_URL;
 
@@ -141,7 +141,7 @@ const Home = () => {
       new Date(m.fecha || m.createdAt).toDateString() === hoyStr
     );
     const ingresos = movsHoy.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
-    const gastos   = movsHoy.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
+    const gastos = movsHoy.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
     return { ingresos, gastos, saldo: ingresos - gastos };
   }, [movimientos]);
 
@@ -186,7 +186,7 @@ const Home = () => {
         if (decoded.nombre || decoded.username) {
           setUserData({ name: decoded.nombre || decoded.username, role: decoded.role || 'Administrador' });
         }
-      } catch {}
+      } catch { }
       setVistaCliente('lista'); setVistaFactura('lista'); setVistaCotizacion('lista'); setVistaRemision('lista');
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -236,6 +236,13 @@ const Home = () => {
     return fmt(n);
   };
 
+  const SUGERENCIAS_CHAT = [
+    '¿Cómo creo una factura?',
+    '¿Cómo registro un gasto?',
+    '¿Qué es una cotización?',
+    '¿Cómo llevo el inventario?',
+  ];
+
   const MENU_ITEMS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'facturas', label: 'Facturacion', icon: FileText },
@@ -274,38 +281,32 @@ const Home = () => {
   };
 
   // ── Lógica del chat con IA ────────────────────────────────────────────────────
-const enviarMensaje = async () => {
-  // No hace nada si el campo está vacío o si ya está cargando
-  const texto = chatInput.trim();
-  if (!texto || chatCargando) return;
+  const enviarMensaje = async (textoDirecto = null) => {
+    const texto = (textoDirecto || chatInput).trim();
+    if (!texto || chatCargando) return;
+    const nuevosMensajes = [...chatMensajes, { role: 'user', content: texto }];
+    setChatMensajes(nuevosMensajes);
+    if (!textoDirecto) setChatInput('');
 
-  // Construimos el nuevo historial con el mensaje del usuario
-  const nuevosMensajes = [...chatMensajes, { role: 'user', content: texto }];
+    try {
+      // Llamamos al backend. axiosAuth() añade el token JWT automáticamente
+      const { data } = await axios.post(BASE_URL + '/chat', { messages: nuevosMensajes }, axiosAuth());
 
-  // Actualizamos el estado: mostramos el mensaje y limpiamos el input
-  setChatMensajes(nuevosMensajes);
-  setChatInput('');
-  setChatCargando(true);
+      // Añadimos la respuesta de la IA al historial
+      setChatMensajes(prev => [...prev, { role: 'assistant', content: data.reply }]);
+    } catch {
+      // Si falla, mostramos un mensaje de error como si fuera la IA quien responde
+      setChatMensajes(prev => [...prev, { role: 'assistant', content: 'Ocurrió un error al conectar. Intenta de nuevo.' }]);
+    } finally {
+      // Siempre quitamos el estado de carga, sin importar si funcionó o no
+      setChatCargando(false);
+    }
+  };
 
-  try {
-    // Llamamos al backend. axiosAuth() añade el token JWT automáticamente
-    const { data } = await axios.post(BASE_URL + '/chat', { messages: nuevosMensajes }, axiosAuth());
-
-    // Añadimos la respuesta de la IA al historial
-    setChatMensajes(prev => [...prev, { role: 'assistant', content: data.reply }]);
-  } catch {
-    // Si falla, mostramos un mensaje de error como si fuera la IA quien responde
-    setChatMensajes(prev => [...prev, { role: 'assistant', content: 'Ocurrió un error al conectar. Intenta de nuevo.' }]);
-  } finally {
-    // Siempre quitamos el estado de carga, sin importar si funcionó o no
-    setChatCargando(false);
-  }
-};
-
-// Cada vez que chatMensajes cambia, hacemos scroll al final automáticamente
-useEffect(() => {
-  chatFinRef.current?.scrollIntoView({ behavior: 'smooth' });
-}, [chatMensajes]);
+  // Cada vez que chatMensajes cambia, hacemos scroll al final automáticamente
+  useEffect(() => {
+    chatFinRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMensajes]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -540,7 +541,7 @@ useEffect(() => {
     // ── Rango de fechas según período ────────────────────────────────────────
     const getRango = () => {
       const inicio = new Date(hoy);
-      const fin    = new Date(hoy);
+      const fin = new Date(hoy);
       fin.setHours(23, 59, 59, 999);
       if (periodoEstadisticas === 'diario') {
         inicio.setHours(0, 0, 0, 0);
@@ -566,8 +567,8 @@ useEffect(() => {
       return f >= inicio && f <= fin;
     });
 
-    const ingPeriodo  = movsPeriodo.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
-    const gasPeriodo  = movsPeriodo.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
+    const ingPeriodo = movsPeriodo.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0);
+    const gasPeriodo = movsPeriodo.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0);
     const saldoPeriodo = ingPeriodo - gasPeriodo;
 
     // ── Datos del gráfico ────────────────────────────────────────────────────
@@ -578,16 +579,16 @@ useEffect(() => {
           return {
             d: h + 'h',
             ingresos: movsH.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0),
-            gastos:   movsH.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0),
+            gastos: movsH.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0),
           };
         });
         return horas.filter((_, h) => h >= 6 && h <= 22);
       }
       if (periodoEstadisticas === 'semanal') {
-        const dias  = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        const dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
         return dias.map((d, i) => {
           const diaInicio = new Date(inicio); diaInicio.setDate(inicio.getDate() + i);
-          const diaFin    = new Date(diaInicio); diaFin.setDate(diaInicio.getDate() + 1);
+          const diaFin = new Date(diaInicio); diaFin.setDate(diaInicio.getDate() + 1);
           const movsD = movsPeriodo.filter(m => { const f = new Date(m.fecha || m.createdAt); return f >= diaInicio && f < diaFin; });
           return { d, ingresos: movsD.filter(m => m.tipo === 'ingreso').reduce((a, m) => a + (m.monto || 0), 0), gastos: movsD.filter(m => m.tipo === 'gasto').reduce((a, m) => a + (m.monto || 0), 0) };
         });
@@ -705,7 +706,8 @@ useEffect(() => {
           {[{ id: 'diario', label: '📅 Diario' }, { id: 'semanal', label: '📆 Semanal' }, { id: 'mensual', label: '🗓️ Mensual' }].map(tab => (
             <button key={tab.id} type="button"
               onClick={() => { setPeriodoEstadisticas(tab.id); setOffsetEstadisticas(0); }}
-              style={{ padding: '9px 20px', borderRadius: '12px', fontFamily: 'inherit', fontWeight: '800', fontSize: '13px', cursor: 'pointer',
+              style={{
+                padding: '9px 20px', borderRadius: '12px', fontFamily: 'inherit', fontWeight: '800', fontSize: '13px', cursor: 'pointer',
                 background: periodoEstadisticas === tab.id ? G : p.card,
                 color: periodoEstadisticas === tab.id ? '#fff' : p.textoMuted,
                 border: periodoEstadisticas === tab.id ? 'none' : '1.5px solid ' + p.borde
@@ -948,214 +950,214 @@ useEffect(() => {
 
             {seccionActiva === 'dashboard' ? renderDashboard()
 
-            : seccionActiva === 'ingresos' ? (
-              <CrearIngreso onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
+              : seccionActiva === 'ingresos' ? (
+                <CrearIngreso onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
 
-            ) : seccionActiva === 'gastos' ? (
-              <CrearGasto onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
+              ) : seccionActiva === 'gastos' ? (
+                <CrearGasto onBack={() => setSeccionActiva('dashboard')} onSave={handleSaveMovimiento} />
 
-            ) : seccionActiva === 'lista-movimientos' ? (
-              <ListaMovimientos
-                tipo={tipoListaMovimientos}
-                movimientos={movimientos}
-                onBack={() => setSeccionActiva('balance')}
-              />
+              ) : seccionActiva === 'lista-movimientos' ? (
+                <ListaMovimientos
+                  tipo={tipoListaMovimientos}
+                  movimientos={movimientos}
+                  onBack={() => setSeccionActiva('balance')}
+                />
 
-            ) : seccionActiva === 'balance' ? (
-              <BalanceTabs
-                movimientos={movimientos}
-                resumen={resumen}
-                clientes={clientes}
-                onNavigate={setSeccionActiva}
-                onVerLista={(tipo) => { setTipoListaMovimientos(tipo); setSeccionActiva('lista-movimientos'); }}
-              />
+              ) : seccionActiva === 'balance' ? (
+                <BalanceTabs
+                  movimientos={movimientos}
+                  resumen={resumen}
+                  clientes={clientes}
+                  onNavigate={setSeccionActiva}
+                  onVerLista={(tipo) => { setTipoListaMovimientos(tipo); setSeccionActiva('lista-movimientos'); }}
+                />
 
-            ) : seccionActiva === 'proveedores' ? (
-              <Proveedores onBack={() => setSeccionActiva('balance')} />
+              ) : seccionActiva === 'proveedores' ? (
+                <Proveedores onBack={() => setSeccionActiva('balance')} />
 
-            ) : seccionActiva === 'inventario' ? (
-              <Inventario />
+              ) : seccionActiva === 'inventario' ? (
+                <Inventario />
 
-            ) : seccionActiva === 'configuracion' ? (
-              <Configuracion onBack={() => setSeccionActiva('dashboard')} userData={userData} />
+              ) : seccionActiva === 'configuracion' ? (
+                <Configuracion onBack={() => setSeccionActiva('dashboard')} userData={userData} />
 
-            ) : seccionActiva === 'notificaciones' ? (
-              <Notificaciones onBack={() => setSeccionActiva('dashboard')} />
+              ) : seccionActiva === 'notificaciones' ? (
+                <Notificaciones onBack={() => setSeccionActiva('dashboard')} />
 
-            ) : seccionActiva === 'facturas' ? (
-              vistaFactura === 'lista' ? (
-                <ListaFactura facturas={facturas} onSeleccionar={f => { setFacturaSeleccionada(f); setVistaFactura('crear'); }} onNueva={() => { setFacturaSeleccionada(null); setVistaFactura('crear'); }} />
-              ) : (
-                <CrearFactura listaDeClientes={clientes} facturaAEditar={facturaSeleccionada}
-                  onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
-                  onBack={() => { setFacturaSeleccionada(null); setVistaFactura('lista'); }}
-                  onDelete={async id => {
-                    if (!window.confirm('Eliminar esta factura?')) return;
-                    try { await axios.delete(BASE_URL + '/facturas/' + id, axiosAuth()); alert('Factura eliminada'); setFacturaSeleccionada(null); setVistaFactura('lista'); await fetchData(); }
-                    catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
-                  }}
-                  onSave={async d => {
-                    try {
-                      const token = localStorage.getItem('token');
-                      if (!token) { navigate('/login'); return; }
-                      const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
-                      const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
-                      const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
-                      if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
-                      const costoPorUnidad = Number(d.costoPorUnidad) || 0;
-                      const cantidad = Number(d.cantidad) || 1;
-                      const descPorc = Number(d.descPorc) || 0;
-                      const ivaPorc = Number(d.ivaPorc) || 0;
-                      const totalBruto = costoPorUnidad * cantidad;
-                      const subtotal = totalBruto - totalBruto * (descPorc / 100);
-                      const valorNeto = subtotal + subtotal * (ivaPorc / 100);
-                      const itemPayload = { descripcion: d.descripcion || '', cantidad, precioUnitario: costoPorUnidad, total: totalBruto };
-                      if (d._id) {
-                        await axios.put(BASE_URL + '/facturas/' + d._id, { numero: d.numero || 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, items: [itemPayload], estado: facturaSeleccionada?.estado || 'pendiente' }, cfg);
-                        alert('Factura actualizada');
-                      } else {
-                        await axios.post(BASE_URL + '/facturas', { numero: 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, userId, items: [itemPayload], estado: 'pendiente' }, cfg);
-                        alert('Factura creada correctamente');
+              ) : seccionActiva === 'facturas' ? (
+                vistaFactura === 'lista' ? (
+                  <ListaFactura facturas={facturas} onSeleccionar={f => { setFacturaSeleccionada(f); setVistaFactura('crear'); }} onNueva={() => { setFacturaSeleccionada(null); setVistaFactura('crear'); }} />
+                ) : (
+                  <CrearFactura listaDeClientes={clientes} facturaAEditar={facturaSeleccionada}
+                    onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
+                    onBack={() => { setFacturaSeleccionada(null); setVistaFactura('lista'); }}
+                    onDelete={async id => {
+                      if (!window.confirm('Eliminar esta factura?')) return;
+                      try { await axios.delete(BASE_URL + '/facturas/' + id, axiosAuth()); alert('Factura eliminada'); setFacturaSeleccionada(null); setVistaFactura('lista'); await fetchData(); }
+                      catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
+                    }}
+                    onSave={async d => {
+                      try {
+                        const token = localStorage.getItem('token');
+                        if (!token) { navigate('/login'); return; }
+                        const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
+                        const cfg = axiosAuth();
+                        const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
+                        const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
+                        if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
+                        const costoPorUnidad = Number(d.costoPorUnidad) || 0;
+                        const cantidad = Number(d.cantidad) || 1;
+                        const descPorc = Number(d.descPorc) || 0;
+                        const ivaPorc = Number(d.ivaPorc) || 0;
+                        const totalBruto = costoPorUnidad * cantidad;
+                        const subtotal = totalBruto - totalBruto * (descPorc / 100);
+                        const valorNeto = subtotal + subtotal * (ivaPorc / 100);
+                        const itemPayload = { descripcion: d.descripcion || '', cantidad, precioUnitario: costoPorUnidad, total: totalBruto };
+                        if (d._id) {
+                          await axios.put(BASE_URL + '/facturas/' + d._id, { numero: d.numero || 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, items: [itemPayload], estado: facturaSeleccionada?.estado || 'pendiente' }, cfg);
+                          alert('Factura actualizada');
+                        } else {
+                          await axios.post(BASE_URL + '/facturas', { numero: 'FAC-' + Date.now(), clienteId, clienteNombre: d.cliente, subtotal, iva: ivaPorc, total: valorNeto, userId, items: [itemPayload], estado: 'pendiente' }, cfg);
+                          alert('Factura creada correctamente');
+                        }
+                        await fetchData(); setFacturaSeleccionada(null); setVistaFactura('lista');
+                      } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
+                    }} />
+                )
+
+              ) : seccionActiva === 'cotizaciones' ? (
+                vistaCotizacion === 'lista' ? (
+                  <ListaCotizacion cotizaciones={cotizaciones} onSeleccionar={c => { setCotizacionSeleccionada(c); setVistaCotizacion('crear'); }} onNueva={() => { setCotizacionSeleccionada(null); setVistaCotizacion('crear'); }} />
+                ) : (
+                  <CrearCotizacion listaDeClientes={clientes} cotizacionAEditar={cotizacionSeleccionada}
+                    onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
+                    onBack={() => { setCotizacionSeleccionada(null); setVistaCotizacion('lista'); }}
+                    onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/cotizaciones/' + id, axiosAuth()); alert('Cotizacion eliminada'); setCotizacionSeleccionada(null); setVistaCotizacion('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
+                    onSave={async d => {
+                      try {
+                        const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
+                        const cfg = axiosAuth();
+                        const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
+                        const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
+                        if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
+                        const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
+                        const numero = (d.numeroCotizacion || '').trim() || 'COT-' + Date.now();
+                        const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
+                        if (d._id) { await axios.put(BASE_URL + '/cotizaciones/' + d._id, { numero: (d.numeroCotizacion || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, items: [itemPayload], estado: cotizacionSeleccionada?.estado || 'pendiente' }, cfg); alert('Cotizacion actualizada'); }
+                        else { await axios.post(BASE_URL + '/cotizaciones', { numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, userId, items: [itemPayload] }, cfg); alert('Cotizacion creada'); }
+                        await fetchData(); setCotizacionSeleccionada(null); setVistaCotizacion('lista');
+                      } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
+                    }} />
+                )
+
+              ) : seccionActiva === 'remisiones' ? (
+                vistaRemision === 'lista' ? (
+                  <ListaRemision remisiones={remisiones} onSeleccionar={r => { setRemisionSeleccionada(r); setVistaRemision('crear'); }} onNueva={() => { setRemisionSeleccionada(null); setVistaRemision('crear'); }} />
+                ) : (
+                  <CrearRemision listaDeClientes={clientes} remisionAEditar={remisionSeleccionada}
+                    onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
+                    onBack={() => { setRemisionSeleccionada(null); setVistaRemision('lista'); }}
+                    onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/remisiones/' + id, axiosAuth()); alert('Remision eliminada'); setRemisionSeleccionada(null); setVistaRemision('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
+                    onSave={async d => {
+                      try {
+                        const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
+                        const cfg = axiosAuth();
+                        const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
+                        const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
+                        if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
+                        const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
+                        const numero = (d.numeroRemision || '').trim() || 'REM-' + Date.now();
+                        const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
+                        if (d._id) { await axios.put(BASE_URL + '/remisiones/' + d._id, { numero: (d.numeroRemision || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, direccionEntrega: remisionSeleccionada?.direccionEntrega || '', items: [itemPayload], estado: remisionSeleccionada?.estado || 'pendiente' }, cfg); alert('Remision actualizada'); }
+                        else { await axios.post(BASE_URL + '/remisiones', { numero, clienteId, clienteNombre: d.cliente, items: [itemPayload], userId }, cfg); alert('Remision creada'); }
+                        await fetchData(); setRemisionSeleccionada(null); setVistaRemision('lista');
+                      } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
+                    }} />
+                )
+
+              ) : seccionActiva === 'clientes' ? (
+                vistaCliente === 'lista' ? (
+                  <ListaClientes clientes={clientes} onNuevo={() => { setClienteSeleccionado(null); setVistaCliente('crear'); }} onEdit={c => { setClienteSeleccionado(c); setVistaCliente('crear'); }} />
+                ) : (
+                  <CrearCliente
+                    clienteAEditar={clienteSeleccionado ? { ...clienteSeleccionado, cedulaOrNit: String(clienteSeleccionado.nit ?? clienteSeleccionado.cedulaOrNit ?? '') } : null}
+                    onBack={() => { setVistaCliente('lista'); setClienteSeleccionado(null); }}
+                    onSave={async datos => {
+                      try {
+                        const cfg = axiosAuth(); const userId = getUserId();
+                        const payload = { nombre: datos.nombre, nit: Number(datos.cedulaOrNit), ciudad: datos.ciudad, actividadEconomica: datos.actividadEconomica, telefono: datos.telefono, email: datos.email, direccion: datos.direccion, tipo: 'natural', userId };
+                        if (clienteSeleccionado) { await axios.put(BASE_URL + '/clientes/' + clienteSeleccionado._id, payload, cfg); alert('Cliente actualizado'); }
+                        else { await axios.post(BASE_URL + '/clientes', payload, cfg); alert('Cliente guardado'); }
+                        await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null);
+                      } catch (e) { alert('Error: ' + (e.response?.data?.message || 'Servidor no responde')); }
+                    }}
+                    onDelete={async id => {
+                      if (window.confirm('Eliminar este cliente?')) {
+                        try { await axios.delete(BASE_URL + '/clientes/' + id, axiosAuth()); alert('Cliente eliminado'); await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null); }
+                        catch (e) { alert('Error al eliminar'); }
                       }
-                      await fetchData(); setFacturaSeleccionada(null); setVistaFactura('lista');
-                    } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
-                  }} />
-              )
+                    }} />
+                )
 
-            ) : seccionActiva === 'cotizaciones' ? (
-              vistaCotizacion === 'lista' ? (
-                <ListaCotizacion cotizaciones={cotizaciones} onSeleccionar={c => { setCotizacionSeleccionada(c); setVistaCotizacion('crear'); }} onNueva={() => { setCotizacionSeleccionada(null); setVistaCotizacion('crear'); }} />
-              ) : (
-                <CrearCotizacion listaDeClientes={clientes} cotizacionAEditar={cotizacionSeleccionada}
-                  onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
-                  onBack={() => { setCotizacionSeleccionada(null); setVistaCotizacion('lista'); }}
-                  onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/cotizaciones/' + id, axiosAuth()); alert('Cotizacion eliminada'); setCotizacionSeleccionada(null); setVistaCotizacion('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
-                  onSave={async d => {
-                    try {
-                      const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
-                      const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
-                      const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
-                      if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
-                      const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
-                      const numero = (d.numeroCotizacion || '').trim() || 'COT-' + Date.now();
-                      const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
-                      if (d._id) { await axios.put(BASE_URL + '/cotizaciones/' + d._id, { numero: (d.numeroCotizacion || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, items: [itemPayload], estado: cotizacionSeleccionada?.estado || 'pendiente' }, cfg); alert('Cotizacion actualizada'); }
-                      else { await axios.post(BASE_URL + '/cotizaciones', { numero, clienteId, clienteNombre: d.cliente, subtotal: lineTotal, iva: 0, total: lineTotal, userId, items: [itemPayload] }, cfg); alert('Cotizacion creada'); }
-                      await fetchData(); setCotizacionSeleccionada(null); setVistaCotizacion('lista');
-                    } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
-                  }} />
-              )
+              ) : seccionActiva === 'estadisticas' ? renderEstadisticas()
 
-            ) : seccionActiva === 'remisiones' ? (
-              vistaRemision === 'lista' ? (
-                <ListaRemision remisiones={remisiones} onSeleccionar={r => { setRemisionSeleccionada(r); setVistaRemision('crear'); }} onNueva={() => { setRemisionSeleccionada(null); setVistaRemision('crear'); }} />
-              ) : (
-                <CrearRemision listaDeClientes={clientes} remisionAEditar={remisionSeleccionada}
-                  onNuevoCliente={() => { setSeccionActiva('clientes'); setClienteSeleccionado(null); setVistaCliente('crear'); }}
-                  onBack={() => { setRemisionSeleccionada(null); setVistaRemision('lista'); }}
-                  onDelete={async id => { if (!window.confirm('Eliminar?')) return; try { await axios.delete(BASE_URL + '/remisiones/' + id, axiosAuth()); alert('Remision eliminada'); setRemisionSeleccionada(null); setVistaRemision('lista'); await fetchData(); } catch (e) { alert('Error'); } }}
-                  onSave={async d => {
-                    try {
-                      const userId = getUserId(); if (!userId) { alert('Sesion invalida'); return; }
-                      const cfg = axiosAuth();
-                      const clienteEncontrado = clientes.find(c => c.nombre === d.cliente);
-                      const clienteId = clienteEncontrado?._id || clienteEncontrado?.id || null;
-                      if (!d.cliente?.trim()) { alert('Selecciona un cliente.'); return; }
-                      const cant = Number(d.cantidad) || 0; const pu = Number(d.valorUnitario) || 0; const lineTotal = cant * pu;
-                      const numero = (d.numeroRemision || '').trim() || 'REM-' + Date.now();
-                      const itemPayload = { descripcion: d.descripcion, cantidad: cant, precioUnitario: pu, total: lineTotal };
-                      if (d._id) { await axios.put(BASE_URL + '/remisiones/' + d._id, { numero: (d.numeroRemision || '').trim() || d.numero, clienteId, clienteNombre: d.cliente, direccionEntrega: remisionSeleccionada?.direccionEntrega || '', items: [itemPayload], estado: remisionSeleccionada?.estado || 'pendiente' }, cfg); alert('Remision actualizada'); }
-                      else { await axios.post(BASE_URL + '/remisiones', { numero, clienteId, clienteNombre: d.cliente, items: [itemPayload], userId }, cfg); alert('Remision creada'); }
-                      await fetchData(); setRemisionSeleccionada(null); setVistaRemision('lista');
-                    } catch (e) { alert('Error: ' + (e.response?.data?.message || e.message)); }
-                  }} />
-              )
-
-            ) : seccionActiva === 'clientes' ? (
-              vistaCliente === 'lista' ? (
-                <ListaClientes clientes={clientes} onNuevo={() => { setClienteSeleccionado(null); setVistaCliente('crear'); }} onEdit={c => { setClienteSeleccionado(c); setVistaCliente('crear'); }} />
-              ) : (
-                <CrearCliente
-                  clienteAEditar={clienteSeleccionado ? { ...clienteSeleccionado, cedulaOrNit: String(clienteSeleccionado.nit ?? clienteSeleccionado.cedulaOrNit ?? '') } : null}
-                  onBack={() => { setVistaCliente('lista'); setClienteSeleccionado(null); }}
-                  onSave={async datos => {
-                    try {
-                      const cfg = axiosAuth(); const userId = getUserId();
-                      const payload = { nombre: datos.nombre, nit: Number(datos.cedulaOrNit), ciudad: datos.ciudad, actividadEconomica: datos.actividadEconomica, telefono: datos.telefono, email: datos.email, direccion: datos.direccion, tipo: 'natural', userId };
-                      if (clienteSeleccionado) { await axios.put(BASE_URL + '/clientes/' + clienteSeleccionado._id, payload, cfg); alert('Cliente actualizado'); }
-                      else { await axios.post(BASE_URL + '/clientes', payload, cfg); alert('Cliente guardado'); }
-                      await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null);
-                    } catch (e) { alert('Error: ' + (e.response?.data?.message || 'Servidor no responde')); }
-                  }}
-                  onDelete={async id => {
-                    if (window.confirm('Eliminar este cliente?')) {
-                      try { await axios.delete(BASE_URL + '/clientes/' + id, axiosAuth()); alert('Cliente eliminado'); await fetchData(); setVistaCliente('lista'); setClienteSeleccionado(null); }
-                      catch (e) { alert('Error al eliminar'); }
-                    }
-                  }} />
-              )
-
-            ) : seccionActiva === 'estadisticas' ? renderEstadisticas()
-
-            : seccionActiva === 'contactos' ? (
-              <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-                <div style={{ background: p.card, borderRadius: '24px', padding: '40px 32px', border: '1.5px solid ' + p.borde, textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '22px', background: G, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '900', color: '#fff' }}>BZ</div>
-                  <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: p.texto }}>Bayron Zamudio Santafe</h2>
-                  <p style={{ margin: '0 0 24px', fontSize: '13px', color: G, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Disenador y Full Stack Developer</p>
-                  <div style={{ background: p.surface, borderRadius: '14px', padding: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: GL, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Phone size={17} color={G} />
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                      <p style={{ margin: '0 0 2px', fontSize: '10px', color: p.textoMuted, fontWeight: '700', textTransform: 'uppercase' }}>WhatsApp / Celular</p>
-                      <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: p.texto }}>322 679 8678</p>
+                : seccionActiva === 'contactos' ? (
+                  <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+                    <div style={{ background: p.card, borderRadius: '24px', padding: '40px 32px', border: '1.5px solid ' + p.borde, textAlign: 'center' }}>
+                      <div style={{ width: '80px', height: '80px', borderRadius: '22px', background: G, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '900', color: '#fff' }}>BZ</div>
+                      <h2 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: '800', color: p.texto }}>Bayron Zamudio Santafe</h2>
+                      <p style={{ margin: '0 0 24px', fontSize: '13px', color: G, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Disenador y Full Stack Developer</p>
+                      <div style={{ background: p.surface, borderRadius: '14px', padding: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: GL, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Phone size={17} color={G} />
+                        </div>
+                        <div style={{ textAlign: 'left' }}>
+                          <p style={{ margin: '0 0 2px', fontSize: '10px', color: p.textoMuted, fontWeight: '700', textTransform: 'uppercase' }}>WhatsApp / Celular</p>
+                          <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: p.texto }}>322 679 8678</p>
+                        </div>
+                      </div>
+                      <button onClick={() => window.open('https://wa.me/573226798678', '_blank')}
+                        style={{ width: '100%', padding: '13px', borderRadius: '13px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
+                        Hablar por WhatsApp <ExternalLink size={15} />
+                      </button>
                     </div>
                   </div>
-                  <button onClick={() => window.open('https://wa.me/573226798678', '_blank')}
-                    style={{ width: '100%', padding: '13px', borderRadius: '13px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
-                    Hablar por WhatsApp <ExternalLink size={15} />
-                  </button>
-                </div>
-              </div>
 
-            ) : seccionActiva === 'ayuda' ? (
-              <div style={{ maxWidth: '680px', margin: '0 auto' }}>
-                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                  <h2 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: '800', color: p.texto }}>Centro de ayuda</h2>
-                  <p style={{ margin: 0, fontSize: '14px', color: p.textoMuted }}>Como podemos ayudarte con EVA?</p>
-                </div>
-                <div style={{ background: p.card, borderRadius: '20px', padding: '26px', border: '1.5px solid ' + p.borde, marginBottom: '14px' }}>
-                  <h3 style={{ margin: '0 0 18px', fontSize: '15px', fontWeight: '800', color: p.texto }}>Preguntas frecuentes</h3>
-                  {[
-                    { q: 'Como crear mi primera factura?', a: 'Ve a Facturacion y haz clic en Nueva factura. Asegurate de tener clientes creados primero.' },
-                    { q: 'Como registro un gasto?', a: 'Desde el Dashboard, clic en el boton rojo + Gasto, o ve al menu lateral en Balance.' },
-                    { q: 'Como sincroniza con la app movil?', a: 'Los datos se sincronizan automaticamente. La app usa el mismo servidor (Railway) y base de datos (MongoDB Atlas).' },
-                    { q: 'Puedo imprimir facturas?', a: 'Si. Abre cualquier factura y usa el boton Imprimir. Se genera un documento con formato legal colombiano.' },
-                  ].map((item, i, arr) => (
-                    <div key={i} style={{ padding: '14px 0', borderBottom: i < arr.length - 1 ? '1px solid ' + p.borde : 'none' }}>
-                      <p style={{ margin: '0 0 5px', fontSize: '13px', fontWeight: '700', color: p.texto }}>{item.q}</p>
-                      <p style={{ margin: 0, fontSize: '12px', color: p.textoMuted, lineHeight: '1.6' }}>{item.a}</p>
+                ) : seccionActiva === 'ayuda' ? (
+                  <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                      <h2 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: '800', color: p.texto }}>Centro de ayuda</h2>
+                      <p style={{ margin: 0, fontSize: '14px', color: p.textoMuted }}>Como podemos ayudarte con EVA?</p>
                     </div>
-                  ))}
-                </div>
-                <div style={{ background: G, borderRadius: '20px', padding: '26px', textAlign: 'center', color: '#fff' }}>
-                  <h4 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: '800' }}>Necesitas mas ayuda?</h4>
-                  <p style={{ margin: '0 0 18px', fontSize: '13px', opacity: 0.8 }}>Soporte disponible Lunes a Viernes, 8am a 6pm</p>
-                  <button onClick={() => setSeccionActiva('contactos')}
-                    style={{ background: '#fff', color: G, border: 'none', padding: '11px 26px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Contactar soporte
-                  </button>
-                </div>
-              </div>
+                    <div style={{ background: p.card, borderRadius: '20px', padding: '26px', border: '1.5px solid ' + p.borde, marginBottom: '14px' }}>
+                      <h3 style={{ margin: '0 0 18px', fontSize: '15px', fontWeight: '800', color: p.texto }}>Preguntas frecuentes</h3>
+                      {[
+                        { q: 'Como crear mi primera factura?', a: 'Ve a Facturacion y haz clic en Nueva factura. Asegurate de tener clientes creados primero.' },
+                        { q: 'Como registro un gasto?', a: 'Desde el Dashboard, clic en el boton rojo + Gasto, o ve al menu lateral en Balance.' },
+                        { q: 'Como sincroniza con la app movil?', a: 'Los datos se sincronizan automaticamente. La app usa el mismo servidor (Railway) y base de datos (MongoDB Atlas).' },
+                        { q: 'Puedo imprimir facturas?', a: 'Si. Abre cualquier factura y usa el boton Imprimir. Se genera un documento con formato legal colombiano.' },
+                      ].map((item, i, arr) => (
+                        <div key={i} style={{ padding: '14px 0', borderBottom: i < arr.length - 1 ? '1px solid ' + p.borde : 'none' }}>
+                          <p style={{ margin: '0 0 5px', fontSize: '13px', fontWeight: '700', color: p.texto }}>{item.q}</p>
+                          <p style={{ margin: 0, fontSize: '12px', color: p.textoMuted, lineHeight: '1.6' }}>{item.a}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: G, borderRadius: '20px', padding: '26px', textAlign: 'center', color: '#fff' }}>
+                      <h4 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: '800' }}>Necesitas mas ayuda?</h4>
+                      <p style={{ margin: '0 0 18px', fontSize: '13px', opacity: 0.8 }}>Soporte disponible Lunes a Viernes, 8am a 6pm</p>
+                      <button onClick={() => setSeccionActiva('contactos')}
+                        style={{ background: '#fff', color: G, border: 'none', padding: '11px 26px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        Contactar soporte
+                      </button>
+                    </div>
+                  </div>
 
-            ) : (
-              <div style={{ padding: '60px', textAlign: 'center', color: '#bdbdbd', fontSize: '15px', fontWeight: '700' }}>
-                Modulo en desarrollo
-              </div>
-            )}
+                ) : (
+                  <div style={{ padding: '60px', textAlign: 'center', color: '#bdbdbd', fontSize: '15px', fontWeight: '700' }}>
+                    Modulo en desarrollo
+                  </div>
+                )}
           </main>
         </div>
       </div>
@@ -1210,6 +1212,31 @@ useEffect(() => {
                   </div>
                   <p style={{ margin: '0 0 6px', fontSize: '14px', fontWeight: '800', color: p.texto }}>¡Hola! Soy EVA</p>
                   <p style={{ margin: 0, fontSize: '12px', color: p.textoMuted, lineHeight: '1.6' }}>Tu asistente contable. Pregúntame sobre facturas, clientes, inventario o cualquier duda de tu negocio.</p>
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {SUGERENCIAS_CHAT.map((sugerencia, i) => (
+                      <button
+                        key={i}
+                        onClick={() => enviarMensaje(sugerencia)}
+                        style={{
+                          padding: '9px 14px',
+                          borderRadius: '12px',
+                          border: '1.5px solid ' + p.borde,
+                          background: p.surface,
+                          color: p.texto,
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontFamily: 'inherit',
+                          transition: 'border-color 0.2s, background 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = G; e.currentTarget.style.background = GL; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = p.borde; e.currentTarget.style.background = p.surface; }}
+                      >
+                        {sugerencia}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
