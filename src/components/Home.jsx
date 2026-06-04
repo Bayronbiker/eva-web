@@ -27,7 +27,7 @@ import Balance from './balance/Balance';
 import BalanceTabs from './balance/BalanceTabs';
 import Proveedores from './proveedores/Proveedores';
 import Configuracion from './configuracion/Configuracion';
-import Notificaciones from './notificaciones/Notificaciones';
+import Notificaciones, { NOTIFS_DEMO } from './notificaciones/Notificaciones';
 import config from '../config';
 import { jwtDecode } from 'jwt-decode';
 import { useTheme } from '../context/ThemeContext';
@@ -124,6 +124,33 @@ const Home = () => {
   const [periodoEstadisticas, setPeriodoEstadisticas] = useState('semanal');
   const [offsetEstadisticas, setOffsetEstadisticas] = useState(0);
   const [tipoListaMovimientos, setTipoListaMovimientos] = useState('ingreso'); // para ListaMovimientos
+
+  // ── Notificaciones (estado global + persistencia de leídas en localStorage) ──
+  const [notifs, setNotifs] = useState(() => {
+    try {
+      const leidasGuardadas = JSON.parse(localStorage.getItem('eva-notifs-leidas') || '[]');
+      const set = new Set(leidasGuardadas);
+      return NOTIFS_DEMO.map(n => set.has(n.id) ? { ...n, leida: true } : n);
+    } catch {
+      return NOTIFS_DEMO;
+    }
+  });
+  const sinLeerNotifs = useMemo(() => notifs.filter(n => !n.leida).length, [notifs]);
+
+  // Persiste los IDs leídos al cambiar
+  useEffect(() => {
+    try {
+      const leidasIds = notifs.filter(n => n.leida).map(n => n.id);
+      localStorage.setItem('eva-notifs-leidas', JSON.stringify(leidasIds));
+    } catch { /* localStorage no disponible */ }
+  }, [notifs]);
+
+  const toggleNotifLeida   = useCallback((id) => {
+    setNotifs(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
+  }, []);
+  const marcarTodasLeidas = useCallback(() => {
+    setNotifs(prev => prev.map(n => ({ ...n, leida: true })));
+  }, []);
 
   // ── Chat EVA ─────────────────────────────────────────────────────────────────
   const [chatAbierto, setChatAbierto] = useState(false);
@@ -937,7 +964,9 @@ const Home = () => {
               <button type="button" onClick={() => setSeccionActiva('notificaciones')}
                 style={{ position: 'relative', width: '34px', height: '34px', background: p.hover, border: 'none', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <Bell size={16} color={p.textoMuted} />
-                <div style={{ position: 'absolute', top: '6px', right: '6px', width: '7px', height: '7px', borderRadius: '50%', background: p.rojo, border: '1.5px solid ' + p.header }} />
+                {sinLeerNotifs > 0 && (
+                  <div style={{ position: 'absolute', top: '6px', right: '6px', width: '7px', height: '7px', borderRadius: '50%', background: p.rojo, border: '1.5px solid ' + p.header }} />
+                )}
               </button>
               <button type="button" onClick={() => setSeccionActiva('configuracion')}
                 style={{ width: '34px', height: '34px', background: p.hover, border: 'none', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -982,7 +1011,12 @@ const Home = () => {
                 <Configuracion onBack={() => setSeccionActiva('dashboard')} userData={userData} />
 
               ) : seccionActiva === 'notificaciones' ? (
-                <Notificaciones onBack={() => setSeccionActiva('dashboard')} />
+                <Notificaciones
+                  onBack={() => setSeccionActiva('dashboard')}
+                  notifs={notifs}
+                  onToggleLeida={toggleNotifLeida}
+                  onMarcarTodas={marcarTodasLeidas}
+                />
 
               ) : seccionActiva === 'facturas' ? (
                 vistaFactura === 'lista' ? (
