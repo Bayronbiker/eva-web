@@ -56,7 +56,7 @@ export default function BalanceTabs({ movimientos, resumen, clientes, onNavigate
 
       {/* ── Contenido ── */}
       {tabActiva === 'cajaMenor' ? (
-        <Balance movimientos={movimientos} resumen={resumen} onVerLista={onVerLista} />
+        <Balance movimientos={movimientos} resumen={resumen} onVerLista={onVerLista} onNavigate={onNavigate} />
       ) : (
         <SituacionFinanciera movimientos={movimientos} onNavigate={onNavigate} />
       )}

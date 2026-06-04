@@ -1,17 +1,19 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { ArrowUpCircle, ArrowDownCircle, DollarSign, Calendar, Filter, FileText, Table, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, DollarSign, Calendar, Filter, FileText, Table, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 
 const G = '#2E7D32';
 const GL = '#E8F5E9';
 
-const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingresos: 0, gastos: 0 }, onVerLista }) => {
+const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingresos: 0, gastos: 0 }, onVerLista, onNavigate }) => {
   const [filtro, setFiltro] = useState('todos');
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null); // null = todos
   const [semanaOffset, setSemanaOffset] = useState(0); // 0 = semana actual
   const [hoverIngreso, setHoverIngreso] = useState(false);
   const [hoverGasto, setHoverGasto]     = useState(false);
+  const [hoverBtnIngreso, setHoverBtnIngreso] = useState(false);
+  const [hoverBtnGasto,   setHoverBtnGasto]   = useState(false);
   const movimientosRef = useRef(null);
 
   const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
@@ -196,6 +198,71 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
 
   return (
     <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+
+      {/* Botones de creación rápida — Nuevo Ingreso / Nuevo Gasto */}
+      {onNavigate && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => onNavigate('ingresos')}
+            onMouseEnter={() => setHoverBtnIngreso(true)}
+            onMouseLeave={() => setHoverBtnIngreso(false)}
+            style={{
+              padding: '16px',
+              borderRadius: '16px',
+              border: 'none',
+              background: G,
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              fontFamily: 'inherit',
+              transform: hoverBtnIngreso ? 'translateY(-2px)' : 'translateY(0)',
+              boxShadow: hoverBtnIngreso ? '0 8px 24px rgba(46,125,50,0.30)' : '0 2px 8px rgba(46,125,50,0.18)',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Plus size={16} color="#fff" strokeWidth={3} />
+            </div>
+            <span>Nuevo Ingreso</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate('gastos')}
+            onMouseEnter={() => setHoverBtnGasto(true)}
+            onMouseLeave={() => setHoverBtnGasto(false)}
+            style={{
+              padding: '16px',
+              borderRadius: '16px',
+              border: 'none',
+              background: '#ef5350',
+              color: '#fff',
+              fontWeight: 800,
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              fontFamily: 'inherit',
+              transform: hoverBtnGasto ? 'translateY(-2px)' : 'translateY(0)',
+              boxShadow: hoverBtnGasto ? '0 8px 24px rgba(239,83,80,0.30)' : '0 2px 8px rgba(239,83,80,0.18)',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Plus size={16} color="#fff" strokeWidth={3} />
+            </div>
+            <span>Nuevo Gasto</span>
+          </button>
+        </div>
+      )}
 
       {/* Selector de semana */}
       <div style={{ background: GL, borderRadius: '16px', padding: '16px 20px', marginBottom: '16px' }}>
