@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { ArrowUpCircle, ArrowDownCircle, DollarSign, Calendar, Filter, FileText, Table, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, DollarSign, Calendar, Filter, FileText, Table, ChevronLeft, ChevronRight, Plus, Share2, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 
@@ -14,6 +14,8 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
   const [hoverGasto, setHoverGasto]     = useState(false);
   const [hoverBtnIngreso, setHoverBtnIngreso] = useState(false);
   const [hoverBtnGasto,   setHoverBtnGasto]   = useState(false);
+  const [hoverBtnShare,   setHoverBtnShare]   = useState(false);
+  const [showShareSheet,  setShowShareSheet]  = useState(false);
   const movimientosRef = useRef(null);
 
   const fmt = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
@@ -199,71 +201,6 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
   return (
     <div style={{ maxWidth: '780px', margin: '0 auto', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-      {/* Botones de creación rápida — Nuevo Ingreso / Nuevo Gasto */}
-      {onNavigate && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-          <button
-            type="button"
-            onClick={() => onNavigate('ingresos')}
-            onMouseEnter={() => setHoverBtnIngreso(true)}
-            onMouseLeave={() => setHoverBtnIngreso(false)}
-            style={{
-              padding: '16px',
-              borderRadius: '16px',
-              border: 'none',
-              background: G,
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              fontFamily: 'inherit',
-              transform: hoverBtnIngreso ? 'translateY(-2px)' : 'translateY(0)',
-              boxShadow: hoverBtnIngreso ? '0 8px 24px rgba(46,125,50,0.30)' : '0 2px 8px rgba(46,125,50,0.18)',
-              transition: 'all 0.18s ease',
-            }}
-          >
-            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Plus size={16} color="#fff" strokeWidth={3} />
-            </div>
-            <span>Nuevo Ingreso</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onNavigate('gastos')}
-            onMouseEnter={() => setHoverBtnGasto(true)}
-            onMouseLeave={() => setHoverBtnGasto(false)}
-            style={{
-              padding: '16px',
-              borderRadius: '16px',
-              border: 'none',
-              background: '#ef5350',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              fontFamily: 'inherit',
-              transform: hoverBtnGasto ? 'translateY(-2px)' : 'translateY(0)',
-              boxShadow: hoverBtnGasto ? '0 8px 24px rgba(239,83,80,0.30)' : '0 2px 8px rgba(239,83,80,0.18)',
-              transition: 'all 0.18s ease',
-            }}
-          >
-            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.20)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Plus size={16} color="#fff" strokeWidth={3} />
-            </div>
-            <span>Nuevo Gasto</span>
-          </button>
-        </div>
-      )}
-
       {/* Selector de semana */}
       <div style={{ background: GL, borderRadius: '16px', padding: '16px 20px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -381,17 +318,144 @@ const Balance = ({ movimientos = [], resumen: resumenGeneral = { saldo: 0, ingre
         <p style={{ margin: 0, fontSize: '38px', fontWeight: '900', color: resumen.saldo >= 0 ? '#4CAF50' : '#ef5350', letterSpacing: '-1px', textAlign: 'center' }}>{fmt(resumen.saldo)}</p>
       </div>
 
-      {/* Botones exportar */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-        <button onClick={exportarPDF} type="button"
-          style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: '#ef5350', color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
-          <FileText size={16} /> Exportar PDF
+      {/* Acciones: Nuevo Ingreso · Nuevo Gasto · Compartir (mismo orden y comportamiento que la app Android) */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'stretch' }}>
+        <button
+          type="button"
+          onClick={() => onNavigate && onNavigate('ingresos')}
+          onMouseEnter={() => setHoverBtnIngreso(true)}
+          onMouseLeave={() => setHoverBtnIngreso(false)}
+          disabled={!onNavigate}
+          style={{
+            flex: 1, padding: '13px', borderRadius: '14px', border: 'none',
+            background: G, color: '#fff', fontWeight: 800, fontSize: 13,
+            cursor: onNavigate ? 'pointer' : 'not-allowed',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            fontFamily: 'inherit',
+            transform: hoverBtnIngreso ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoverBtnIngreso ? '0 8px 24px rgba(46,125,50,0.30)' : '0 2px 8px rgba(46,125,50,0.18)',
+            transition: 'all 0.18s ease',
+          }}
+        >
+          <Plus size={16} strokeWidth={3} /> Nuevo Ingreso
         </button>
-        <button onClick={exportarExcel} type="button"
-          style={{ flex: 1, padding: '13px', borderRadius: '14px', border: 'none', background: G, color: '#fff', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px', fontFamily: 'inherit' }}>
-          <Table size={16} /> Exportar Excel
+
+        <button
+          type="button"
+          onClick={() => onNavigate && onNavigate('gastos')}
+          onMouseEnter={() => setHoverBtnGasto(true)}
+          onMouseLeave={() => setHoverBtnGasto(false)}
+          disabled={!onNavigate}
+          style={{
+            flex: 1, padding: '13px', borderRadius: '14px', border: 'none',
+            background: '#C62828', color: '#fff', fontWeight: 800, fontSize: 13,
+            cursor: onNavigate ? 'pointer' : 'not-allowed',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            fontFamily: 'inherit',
+            transform: hoverBtnGasto ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoverBtnGasto ? '0 8px 24px rgba(198,40,40,0.30)' : '0 2px 8px rgba(198,40,40,0.18)',
+            transition: 'all 0.18s ease',
+          }}
+        >
+          <Plus size={16} strokeWidth={3} /> Nuevo Gasto
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowShareSheet(true)}
+          onMouseEnter={() => setHoverBtnShare(true)}
+          onMouseLeave={() => setHoverBtnShare(false)}
+          aria-label="Exportar balance"
+          title="Exportar balance"
+          style={{
+            width: 50, padding: 0, borderRadius: 14, border: 'none',
+            background: GL, color: G,
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'inherit', flexShrink: 0,
+            transform: hoverBtnShare ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoverBtnShare ? '0 6px 18px rgba(46,125,50,0.20)' : 'none',
+            transition: 'all 0.18s ease',
+          }}
+        >
+          <Share2 size={20} />
         </button>
       </div>
+
+      {/* Modal: Exportar PDF / Excel — igual que el ModalBottomSheet de la app */}
+      {showShareSheet && (
+        <div
+          onClick={() => setShowShareSheet(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+            zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: 20, padding: 24,
+              maxWidth: 420, width: '100%',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+              fontFamily: 'inherit',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1a1a1a' }}>Exportar balance</h3>
+                <p style={{ margin: '4px 0 0', fontSize: 12, color: '#9e9e9e' }}>Elige cómo quieres compartir tus datos</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowShareSheet(false)}
+                aria-label="Cerrar"
+                style={{ width: 32, height: 32, borderRadius: 10, border: 'none', background: '#F5F5F5', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <X size={16} color="#757575" />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18 }}>
+              <button
+                type="button"
+                onClick={() => { exportarPDF(); setShowShareSheet(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px', borderRadius: 14, border: '1.5px solid #f0f0f0',
+                  background: '#fff', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                }}
+              >
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: '#FFEBEE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <FileText size={20} color="#ef5350" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>Exportar PDF</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 12, color: '#9e9e9e' }}>Documento listo para imprimir o compartir</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { exportarExcel(); setShowShareSheet(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 16px', borderRadius: 14, border: '1.5px solid #f0f0f0',
+                  background: '#fff', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                }}
+              >
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: GL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Table size={20} color={G} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#1a1a1a' }}>Exportar Excel</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 12, color: '#9e9e9e' }}>Hoja de cálculo con resumen y movimientos</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lista de movimientos */}
       <div ref={movimientosRef} style={{ background: '#fff', borderRadius: '20px', border: '1.5px solid #f0f0f0', overflow: 'hidden' }}>
