@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, Calendar, CreditCard, Smartphone, Banknote, ArrowLeftRight, MoreHorizontal, Building, Loader2 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const CATEGORIAS_INGRESO = ['Venta de productos', 'Prestacion de servicios', 'Factura cobrada', 'Anticipo', 'Comision', 'Devolucion', 'Otros'];
 const CLIENTES_TIPO      = ['Cliente empresa', 'Cliente persona natural', 'Pago en efectivo', 'Otro'];
@@ -20,6 +21,10 @@ const G  = '#2E7D32';
 const GL = '#E8F5E9';
 
 const CrearIngreso = ({ onBack, onSave }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const tituloColor    = isDark ? '#E6EDF3' : '#1a1a1a';
+  const subtituloColor = isDark ? '#9CA3AF' : '#9e9e9e';
   const hoy = new Date().toISOString().split('T')[0];
   const [fecha,       setFecha]       = useState(hoy);
   const [categoria,   setCategoria]   = useState('');
@@ -56,9 +61,9 @@ const CrearIngreso = ({ onBack, onSave }) => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: G }} />
-            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#1a1a1a' }}>Nuevo ingreso</h1>
+            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: tituloColor }}>Nuevo ingreso</h1>
           </div>
-          <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9e9e9e' }}>Registra una entrada de dinero</p>
+          <p style={{ margin: '2px 0 0', fontSize: '12px', color: subtituloColor }}>Registra una entrada de dinero</p>
         </div>
       </div>
 

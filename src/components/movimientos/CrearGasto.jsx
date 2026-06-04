@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, Calendar, CreditCard, Smartphone, Banknote, ArrowLeftRight, MoreHorizontal, Building, Loader2 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const CATEGORIAS_GASTO = ['Arriendo', 'Servicios publicos', 'Nomina', 'Materiales', 'Transporte', 'Marketing', 'Tecnologia', 'Alimentacion', 'Impuestos', 'Otros'];
 const PROVEEDORES      = ['Proveedor directo', 'Persona natural', 'Empresa', 'Otro'];
@@ -17,6 +18,10 @@ const labelStyle   = { fontSize: '11px', fontWeight: '700', letterSpacing: '0.8p
 const sectionStyle = { background: '#fff', borderRadius: '16px', border: '1.5px solid #f0f0f0', marginBottom: '14px', overflow: 'hidden' };
 
 const CrearGasto = ({ onBack, onSave }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const tituloColor    = isDark ? '#E6EDF3' : '#1a1a1a';
+  const subtituloColor = isDark ? '#9CA3AF' : '#9e9e9e';
   const hoy = new Date().toISOString().split('T')[0];
   const [fecha,       setFecha]       = useState(hoy);
   const [categoria,   setCategoria]   = useState('');
@@ -53,9 +58,9 @@ const CrearGasto = ({ onBack, onSave }) => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef5350' }} />
-            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#1a1a1a' }}>Nuevo gasto</h1>
+            <h1 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: tituloColor }}>Nuevo gasto</h1>
           </div>
-          <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9e9e9e' }}>Registra un egreso de tu negocio</p>
+          <p style={{ margin: '2px 0 0', fontSize: '12px', color: subtituloColor }}>Registra un egreso de tu negocio</p>
         </div>
       </div>
 
