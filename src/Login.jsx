@@ -22,18 +22,31 @@ const Login = () => {
         password,
       });
 
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        // CORRECCIÓN: Guardamos el objeto COMPLETO que viene del servidor (que ya tiene el _id)
-        localStorage.setItem('user', JSON.stringify(response.data.user || {
-            _id: response.data.userId || response.data.id,
+      const data = response.data;
+
+      // Caso A: sesión completa, correo ya verificado
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user || {
+            _id: data.userId || data.id,
             username: username,
             role: 'user'
         }));
         navigate('/home');
-      } else {
-        setError('El servidor no devolvió un token de acceso.');
+        return;
       }
+
+      // Caso B: falta verificar correo → guardamos pendingToken y vamos a la pantalla
+      if (data.pendingVerification && data.pendingToken) {
+        localStorage.setItem('pendingToken', data.pendingToken);
+        if (data.email) localStorage.setItem('pendingEmail', data.email);
+        else localStorage.removeItem('pendingEmail');
+        if (data.userId) localStorage.setItem('pendingUserId', data.userId);
+        navigate('/verificar-correo');
+        return;
+      }
+
+      setError('El servidor no devolvió un token de acceso.');
     } catch (err) {
       if (err.code === 'ECONNABORTED') {
         setError(

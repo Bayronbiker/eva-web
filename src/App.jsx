@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
+import VerificarCorreo from './components/auth/VerificarCorreo';
 import Home from './components/Home';
 import ProtectedRoute from './components/ProtectedRoute';
 // Ya no necesitamos importar CrearFactura aquí, Home se encargará de ello.
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verificar-correo" element={<VerificarCorreo />} />
 
         {/* ── PÁGINAS LEGALES PÚBLICAS ────────────────────────────────────
             Sin ProtectedRoute: son accesibles desde la app Android y desde

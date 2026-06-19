@@ -7,6 +7,8 @@ const config = {
     login: '/login',
     register: '/register',
     profile: '/user/profile',
+    sendCode:   '/auth/email/send-code',
+    verifyCode: '/auth/email/verify-code',
     facturas: '/facturas',
     clientes: '/clientes',
     movimientos: '/movimientos',

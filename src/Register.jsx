@@ -38,6 +38,11 @@ const Register = () => {
       setLoading(false);
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Debes ingresar un correo electrónico válido');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await api.post(config.endpoints.register, {
@@ -48,11 +53,24 @@ const Register = () => {
         telefono: formData.telefono,
       });
 
-      if (response.data.message === 'Registro exitoso') {
+      const data = response.data;
+
+      // Nuevo flujo: el backend devuelve pendingToken y manda el código por correo.
+      if (data.pendingToken) {
+        localStorage.setItem('pendingToken', data.pendingToken);
+        if (data.email) localStorage.setItem('pendingEmail', data.email);
+        if (data.userId) localStorage.setItem('pendingUserId', data.userId);
+        setSuccess('Te enviamos un código de verificación a tu correo.');
+        setTimeout(() => navigate('/verificar-correo'), 800);
+        return;
+      }
+
+      // Compatibilidad con backend antiguo
+      if (data.message === 'Registro exitoso') {
         setSuccess('Registro correcto. Redirigiendo al inicio de sesión...');
         setTimeout(() => navigate('/login'), 2000);
       } else {
-        setError(response.data.message || 'Error en el registro');
+        setError(data.message || 'Error en el registro');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error de conexión con el servidor');
@@ -115,7 +133,7 @@ const Register = () => {
           {[
             { name: 'nombre', label: 'Nombre completo', icon: User, placeholder: 'Tu nombre completo' },
             { name: 'username', label: 'Usuario *', icon: User, placeholder: 'Elige un nombre de usuario', required: true },
-            { name: 'email', label: 'Email', icon: Mail, placeholder: 'tu@email.com', type: 'email' },
+            { name: 'email', label: 'Email *', icon: Mail, placeholder: 'tu@email.com', type: 'email', required: true },
             { name: 'telefono', label: 'Teléfono', icon: Phone, placeholder: '300 123 4567', type: 'tel' },
           ].map(({ name, label, icon: Icon, placeholder, required, type = 'text' }) => (
             <div key={name}>
